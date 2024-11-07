@@ -1,4 +1,4 @@
-package com.example.examplestep.components
+package com.example.examplestep.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
