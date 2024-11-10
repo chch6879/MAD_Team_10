@@ -3,11 +3,20 @@ package com.example.examplestep
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class UniversityViewModel : ViewModel() {
 
     private val db = FirebaseFirestore.getInstance()
     private val auth: FirebaseAuth = FirebaseAuth.getInstance() // FirebaseAuth 인스턴스 초기화
+
+    private val today: String
+        get() = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+
+    private val currentMonth: String
+        get() = today.substring(0, 7) // "yyyy-MM" 형식으로 현재 월 추출
 
     fun saveUniversityNameToFirebase(universityName: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
         val userId = getCurrentUserId() // 현재 사용자 ID를 가져오는 메서드 필요
@@ -27,6 +36,10 @@ class UniversityViewModel : ViewModel() {
             .addOnSuccessListener {
                 // 성공적으로 저장된 후 실행할 코드
                 onSuccess()
+
+                // Add dailySteps collection for the user in the university's user document.
+                addDailyStepsCollection(userId, universityName)
+                addTotalStepsCollection(universityName)
             }
             .addOnFailureListener { e ->
                 // 저장 실패 시 실행할 코드
@@ -43,6 +56,86 @@ class UniversityViewModel : ViewModel() {
             .addOnFailureListener { e ->
                 // 사용자 정보 저장 실패 시 처리
                 onFailure(e)
+            }
+    }
+
+    private fun addDailyStepsCollection(userId: String, universityName: String) {
+        // Ensure dailySteps collection exists for the user in universities/{universityName}/users/{userId}/
+        val dailyStepsData = hashMapOf("stepCount" to 0)
+
+        // Creating dailySteps for the user under the university's collection
+       val userDailyStepsDocRefUniversityCollection = db.collection("universities")
+            .document(universityName)
+            .collection("users")
+            .document(userId)
+            .collection("dailySteps") // Create dailySteps subcollection for this user
+            .document(today) // Assuming "today" as the document for daily steps
+
+        userDailyStepsDocRefUniversityCollection.get()
+            .addOnSuccessListener { document ->
+                if (!document.exists()) {
+                    // Document doesn't exist, create it
+                    val dailyStepsData = hashMapOf("stepCount" to 0)
+                    userDailyStepsDocRefUniversityCollection.set(dailyStepsData)
+                        .addOnFailureListener { e ->
+                            e.printStackTrace()
+                        }
+                }
+            }
+            .addOnFailureListener { e ->
+                e.printStackTrace()
+            }
+
+        val userDailyStepsDocRefUsersCollection = db.collection("users")
+            .document(userId)
+            .collection("dailySteps") // Create dailySteps subcollection for this user
+            .document(today) // Assuming "today" as the document for daily steps
+
+        userDailyStepsDocRefUsersCollection.get()
+            .addOnSuccessListener { document ->
+                if (!document.exists()) {
+                    // Document doesn't exist, create it
+                    val dailyStepsData2 = hashMapOf("stepCount" to 0)
+                    userDailyStepsDocRefUsersCollection.set(dailyStepsData2)
+                        .addOnFailureListener { e ->
+                            e.printStackTrace()
+                        }
+                }
+            }
+            .addOnFailureListener { e ->
+                e.printStackTrace()
+            }
+    }
+
+    private fun addTotalStepsCollection(universityName: String) {
+        // Ensure totalSteps collection exists at the university level
+        val totalStepsDocRef = db.collection("universities")
+            .document(universityName)
+            .collection("totalSteps")
+            .document(currentMonth) // Example: Creating a document for this month's total steps
+
+
+        // 트랜잭션을 사용하여 데이터를 안전하게 업데이트
+        db.runTransaction { transaction ->
+            val snapshot = transaction.get(totalStepsDocRef)
+
+            // 문서가 존재하지 않으면 새로 생성
+            if (!snapshot.exists()) {
+                val totalStepsData = hashMapOf("totalSteps" to 0)
+                transaction.set(totalStepsDocRef, totalStepsData)
+            } else {
+                // 문서가 존재하면 업데이트
+                val existingTotalSteps = snapshot.getLong("totalSteps") ?: 0
+                transaction.update(totalStepsDocRef, "totalSteps", existingTotalSteps)
+            }
+        }
+            .addOnSuccessListener {
+                // 트랜잭션 성공
+                println("Total steps document successfully updated!")
+            }
+            .addOnFailureListener { e ->
+                // 트랜잭션 실패
+                e.printStackTrace()
             }
     }
 

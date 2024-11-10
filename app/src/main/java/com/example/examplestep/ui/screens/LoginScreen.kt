@@ -7,6 +7,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -119,10 +120,10 @@ fun LoginScreen(navController: NavController) {
     }
 
 
-    // 최초 로그인 여부 확인
-    if (currentUser != null) {
-        LaunchedEffect(currentUser) {
-            checkIfFirstLogin(currentUser.uid) { isFirstLogin ->
+    LaunchedEffect(currentUser) {
+        // currentUser가 null일 때만 로그인 화면을 보여줘야 하므로, null이 아닐 경우에만 처리하도록 변경
+        currentUser?.let {
+            checkIfFirstLogin(it.uid) { isFirstLogin ->
                 if (isFirstLogin) {
                     navController.navigate("university_selection") {
                         popUpTo("login") { inclusive = true }
@@ -141,8 +142,10 @@ fun LoginScreen(navController: NavController) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Button(onClick = { launchGoogleSignIn() }) { // 로그인 버튼 클릭 시 Google Sign-In 시작
-//            Text("Google로 로그인")
+        Button(
+            onClick = { launchGoogleSignIn() },
+            contentPadding = PaddingValues(0.dp) // 여백을 없앰
+        ){
             Image(
                 painter = painterResource(id = R.drawable.loginimg),
                 contentDescription = "Google Logo",
