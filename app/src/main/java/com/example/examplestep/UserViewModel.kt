@@ -67,7 +67,6 @@ class UserViewModel : ViewModel() {
             }
     }
 
-    // 오늘 날짜의 걸음 수를 Firestore에 업데이트하는 함수
     fun updateDailySteps(stepCount: Int, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
         val userId = auth.currentUser?.uid ?: return
         val universityName = universityName ?: return // 대학명을 로드한 후 사용
@@ -76,57 +75,61 @@ class UserViewModel : ViewModel() {
         // 날짜가 바뀌면 파이버베이스 users컬렉션의 previousStep을 초기화 해야됨
         checkDateChange() // 매번 호출 시 날짜 확인
 
+        // 먼저 이전 걸음 수를 가져와서 차이를 계산
+        getPreviousStepCount(
+            onSuccess = { previousStepCount ->
+                val stepDifference = stepCount - previousStepCount
+                if (stepDifference <= 0) return@getPreviousStepCount // 증가하지 않은 경우 업데이트 생략
 
-        val stepDifference = stepCount - previousStepCount
-        if (stepDifference <= 0) return // 증가하지 않은 경우 업데이트 생략
+                // 대학 및 사용자 문서에 대해 업데이트
+                val dailyStepsRefUniversityCollection = db.collection("universities")
+                    .document(universityName)
+                    .collection("users")
+                    .document(userId)
+                    .collection("dailySteps")
+                    .document(today) // 날짜를 문서 ID로 사용
 
-        // 대학명과 사용자 ID를 기반으로 Firestore 경로 설정
-        val dailyStepsRefUniversityCollection = db.collection("universities")
-            .document(universityName)
-            .collection("users")
-            .document(userId)
-            .collection("dailySteps")
-            .document(today) // 날짜를 문서 ID로 사용
+                val dailyStepsRefUserCollection = db.collection("users")
+                    .document(userId)
+                    .collection("dailySteps")
+                    .document(today)
 
-        // userId를 기반으로 경로 설정
-        val dailyStepsRefUserCollection = db.collection("users")
-            .document(userId)
-            .collection("dailySteps")
-            .document(today)
-
-        // 공통 함수로 중복 제거: Firestore에 데이터 업데이트 또는 설정
-        fun updateFirestoreDocument(docRef: DocumentReference) {
-            docRef.get()
-                .addOnSuccessListener { documentSnapshot ->
-                    if (documentSnapshot.exists()) {
-                        docRef.update(dailyStepsData as Map<String, Any>)
-                            .addOnSuccessListener { onSuccess() }
-                            .addOnFailureListener(onFailure)
-                    } else {
-                        docRef.set(dailyStepsData as Map<String, Any>)
-                            .addOnSuccessListener { onSuccess() }
-                            .addOnFailureListener(onFailure)
-                    }
+                // 공통 함수로 중복 제거: Firestore에 데이터 업데이트 또는 설정
+                fun updateFirestoreDocument(docRef: DocumentReference) {
+                    docRef.get()
+                        .addOnSuccessListener { documentSnapshot ->
+                            if (documentSnapshot.exists()) {
+                                docRef.update(dailyStepsData as Map<String, Any>)
+                                    .addOnSuccessListener { onSuccess() }
+                                    .addOnFailureListener(onFailure)
+                            } else {
+                                docRef.set(dailyStepsData as Map<String, Any>)
+                                    .addOnSuccessListener { onSuccess() }
+                                    .addOnFailureListener(onFailure)
+                            }
+                        }
+                        .addOnFailureListener(onFailure)
                 }
-                .addOnFailureListener(onFailure)
-        }
 
-        // 대학 및 사용자 문서에 대해 업데이트
-        updateFirestoreDocument(dailyStepsRefUniversityCollection)
-        updateFirestoreDocument(dailyStepsRefUserCollection)
+                // 대학 및 사용자 문서에 대해 업데이트
+                updateFirestoreDocument(dailyStepsRefUniversityCollection)
+                updateFirestoreDocument(dailyStepsRefUserCollection)
 
-        // 월별 누적 걸음 수 업데이트
+                // 월별 누적 걸음 수 업데이트
+                updateMonthlyTotalSteps(stepDifference, onSuccess, onFailure)
 
-        // 월별 누적 걸음 수 업데이트 함수 호출
-        updateMonthlyTotalSteps(stepDifference, onSuccess, onFailure)
+                // previousStepCount를 Firestore에 저장하여 다음에 앱이 초기화될 때 불러올 수 있도록 설정
+                savePreviousStepCount(stepCount, onSuccess, onFailure)
 
-        // previousStepCount를 Firestore에 저장하여 다음에 앱이 초기화될 때 불러올 수 있도록 설정
-        savePreviousStepCount(stepCount, onSuccess, onFailure)
 
-        // 업데이트 성공 시 이전 걸음 수를 현재 값으로 갱신
-        previousStepCount = stepCount
-
+            },
+            onFailure = { e ->
+                e.printStackTrace()
+                onFailure(e) // 실패시 콜백 처리
+            }
+        )
     }
+
 
     private fun savePreviousStepCount(stepCount: Int, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
         val userId = auth.currentUser?.uid ?: return
