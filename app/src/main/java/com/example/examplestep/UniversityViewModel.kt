@@ -40,6 +40,7 @@ class UniversityViewModel : ViewModel() {
                 // Add dailySteps collection for the user in the university's user document.
                 addDailyStepsCollection(userId, universityName)
                 addTotalStepsCollection(universityName)
+                addIsExistDocument(universityName)
             }
             .addOnFailureListener { e ->
                 // 저장 실패 시 실행할 코드
@@ -135,6 +136,32 @@ class UniversityViewModel : ViewModel() {
             }
             .addOnFailureListener { e ->
                 // 트랜잭션 실패
+                e.printStackTrace()
+            }
+    }
+
+    private fun addIsExistDocument(universityName: String){
+        // universities -> {universityName} 경로에 isExist 필드를 추가
+        val universityDocRef = db.collection("universities").document(universityName)
+
+        db.runTransaction { transaction ->
+            // 기존 university 문서 가져오기
+            val universitySnapshot = transaction.get(universityDocRef)
+
+            // 문서가 존재하지 않으면 새로 생성하고 필드 추가
+            if (!universitySnapshot.exists()) {
+                // university 문서 생성 및 isExist 필드 추가
+                val data = hashMapOf("isExist" to true)
+                transaction.set(universityDocRef, data)
+            } else {
+                // 문서가 이미 존재하는 경우 isExist 필드를 업데이트
+                transaction.update(universityDocRef, "isExist", true)
+            }
+        }
+            .addOnSuccessListener {
+                println("isExist field successfully added to the university document!")
+            }
+            .addOnFailureListener { e ->
                 e.printStackTrace()
             }
     }

@@ -20,6 +20,18 @@ class UserViewModel : ViewModel() {
     private val _stepCount = MutableStateFlow(0) // 걸음 수를 상태로 관리
     val stepCount: StateFlow<Int> get() = _stepCount
 
+    // 키와 몸무게를 상태로 관리
+    private val _height = MutableStateFlow(0)
+    val height: StateFlow<Int> get() = _height
+
+    private val _weight = MutableStateFlow(0)
+    val weight: StateFlow<Int> get() = _weight
+
+    fun setHeightAndWeight(height: Int, weight: Int) {
+        _height.value = height
+        _weight.value = weight
+    }
+    
     private val today: String
         get() = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
@@ -39,12 +51,14 @@ class UserViewModel : ViewModel() {
         }
     }
 
-
     init {
         loadUserUniversity()
-        getTodaySteps(
-            onSuccess = { stepCount ->
+
+        getTodayStepsAndUserData(
+            onSuccess = { height, weight, stepCount ->
                 previousStepCount = stepCount
+                _height.value = height
+                _weight.value = weight
                 lastUpdateDate = today // 초기화 시점에서 날짜 저장
             },
             onFailure = { e ->
@@ -52,6 +66,20 @@ class UserViewModel : ViewModel() {
             }
         )
     }
+
+
+//    init {
+//        loadUserUniversity()
+//        getTodaySteps(
+//            onSuccess = { stepCount ->
+//                previousStepCount = stepCount
+//                lastUpdateDate = today // 초기화 시점에서 날짜 저장
+//            },
+//            onFailure = { e ->
+//                e.printStackTrace()
+//            }
+//        )
+//    }
 
     // 사용자의 대학명 불러오는 함수
     private fun loadUserUniversity() {
@@ -186,33 +214,85 @@ class UserViewModel : ViewModel() {
 
     }
 
-    fun getTodaySteps(onSuccess: (Int) -> Unit, onFailure: (Exception) -> Unit) {
+//    fun getTodaySteps(onSuccess: (Int) -> Unit, onFailure: (Exception) -> Unit) {
+//        val userId = auth.currentUser?.uid ?: return
+//        val universityName = universityName ?: return // 대학명을 로드한 후 사용
+//
+//        db.collection("users").document(userId)
+//            .collection("dailySteps").document(today)
+//            .get()
+//            .addOnSuccessListener { document ->
+//                if (document.exists()) {
+//                    // 문서가 존재하면 걸음 수 가져오기
+//                    val stepCount = document.getLong("stepCount")?.toInt() ?: 0
+//                    onSuccess(stepCount)
+//                } else {
+//                    // 문서가 없으면 새로 생성하여 걸음 수 초기화
+//                    val initialStepCount = 0
+//                    val dailyStepsData = hashMapOf("stepCount" to initialStepCount)
+//
+//                    db.collection("users").document(userId)
+//                        .collection("dailySteps").document(today)
+//                        .set(dailyStepsData)
+//                        .addOnSuccessListener {
+//                            // 생성 후 걸음 수 초기화 값 반환
+//                            onSuccess(initialStepCount)
+//                        }
+//                        .addOnFailureListener { e ->
+//                            onFailure(e)
+//                        }
+//                }
+//            }
+//            .addOnFailureListener { e ->
+//                onFailure(e)
+//            }
+//    }
+
+
+    fun getTodayStepsAndUserData(
+        onSuccess: (Int, Int, Int) -> Unit,  // 걸음 수, 키, 몸무게
+        onFailure: (Exception) -> Unit
+    ) {
         val userId = auth.currentUser?.uid ?: return
-        val universityName = universityName ?: return // 대학명을 로드한 후 사용
+        val universityName = universityName ?: return // 대학명 확인
 
         db.collection("users").document(userId)
-            .collection("dailySteps").document(today)
             .get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    // 문서가 존재하면 걸음 수 가져오기
-                    val stepCount = document.getLong("stepCount")?.toInt() ?: 0
-                    onSuccess(stepCount)
-                } else {
-                    // 문서가 없으면 새로 생성하여 걸음 수 초기화
-                    val initialStepCount = 0
-                    val dailyStepsData = hashMapOf("stepCount" to initialStepCount)
+            .addOnSuccessListener { userDocument ->
+                if (userDocument.exists()) {
+                    // 키와 몸무게 데이터 가져오기
+                    val height = userDocument.getLong("height")?.toInt() ?: 0
+                    val weight = userDocument.getLong("weight")?.toInt() ?: 0
 
+                    // dailySteps 하위 문서에서 걸음 수 가져오기
                     db.collection("users").document(userId)
                         .collection("dailySteps").document(today)
-                        .set(dailyStepsData)
-                        .addOnSuccessListener {
-                            // 생성 후 걸음 수 초기화 값 반환
-                            onSuccess(initialStepCount)
+                        .get()
+                        .addOnSuccessListener { stepDocument ->
+                            if (stepDocument.exists()) {
+                                val stepCount = stepDocument.getLong("stepCount")?.toInt() ?: 0
+                                onSuccess(stepCount, height, weight)
+                            } else {
+                                // 걸음 수 초기화 후 반환
+                                val initialStepCount = 0
+                                val dailyStepsData = hashMapOf("stepCount" to initialStepCount)
+
+                                db.collection("users").document(userId)
+                                    .collection("dailySteps").document(today)
+                                    .set(dailyStepsData)
+                                    .addOnSuccessListener {
+                                        onSuccess(initialStepCount, height, weight)
+                                    }
+                                    .addOnFailureListener { e ->
+                                        onFailure(e)
+                                    }
+                            }
                         }
                         .addOnFailureListener { e ->
                             onFailure(e)
                         }
+                } else {
+                    onFailure(Exception("User document not found"))
                 }
             }
             .addOnFailureListener { e ->
@@ -224,5 +304,25 @@ class UserViewModel : ViewModel() {
     // 걸음 수 설정 (초기화 또는 업데이트)
     fun setStepCount(count: Int) {
         _stepCount.value = count
+    }
+
+    // 사용자의 키와 몸무게 입력
+    fun saveUserHeightAndWeight(
+        height: Int,
+        weight: Int,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        val userId = auth.currentUser?.uid ?: return
+        val userRef = db.collection("users").document(userId)
+
+        val data = mapOf(
+            "height" to height,
+            "weight" to weight
+        )
+
+        userRef.update(data)
+            .addOnSuccessListener { onSuccess() }
+            .addOnFailureListener { e -> onFailure(e) }
     }
 }

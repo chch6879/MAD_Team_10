@@ -26,8 +26,10 @@ import androidx.navigation.compose.rememberNavController
 import com.example.examplestep.ui.screens.LoginScreen
 
 import com.example.examplestep.ui.screens.HomeScreen
+import com.example.examplestep.ui.screens.LeaderboardScreen
 import com.example.examplestep.ui.screens.RankingScreen
 import com.example.examplestep.ui.screens.SplashScreen
+import com.example.examplestep.ui.screens.StatusScreen
 import com.example.examplestep.ui.screens.UniversitySelectionScreen
 
 class MainActivity : ComponentActivity() {
@@ -40,6 +42,7 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             val universityViewModel: UniversityViewModel = viewModel()
             val userViewModel: UserViewModel= viewModel()
+            val leaderboardViewModel:LeaderboardViewModel= viewModel()
 
 
             NavHost(
@@ -58,11 +61,14 @@ class MainActivity : ComponentActivity() {
                         navController.navigate("home")
                     }
                 }
+                composable("status") {
+                    StatusScreen(navController, userViewModel = userViewModel)
+                }
                 composable("home") {
                     HomeScreen(navController,userViewModel=userViewModel)
                 }
                 composable("ranking") {
-                     RankingScreen(navController) // Ranking 화면 추가
+                    LeaderboardScreen(navController, leaderboardViewModel=leaderboardViewModel)
                 }
             }
 

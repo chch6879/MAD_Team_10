@@ -45,7 +45,7 @@ fun UniversitySelectionScreen(
         TextField(
             value = universityName.value,
             onValueChange = { universityName.value = it },
-            label = { Text("대학 이름") },
+            label = { Text("대학 이름(ex. OO대학교 정자로 기입해주세요 ") },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -57,7 +57,7 @@ fun UniversitySelectionScreen(
                 universityViewModel.saveUniversityNameToFirebase(universityName.value,
                     onSuccess = {
                         // 대학 선택 후 홈 화면으로 이동
-                        navController.navigate("home")
+                        navController.navigate("status")
                     },
                     onFailure = { exception ->
                         errorMessage = "대학 이름 저장 실패: ${exception.message}"

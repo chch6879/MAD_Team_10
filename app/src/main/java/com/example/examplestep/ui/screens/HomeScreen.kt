@@ -48,19 +48,27 @@ fun HomeScreen(
     userViewModel: UserViewModel= viewModel()
 ) {
     val stepCount by userViewModel.stepCount.collectAsState() // ViewModel에서 상태 구독
+    val height by userViewModel.height.collectAsState()
+    val weight by userViewModel.weight.collectAsState()
     val auth = FirebaseAuth.getInstance()
     val context = LocalContext.current
     val isLoading = remember { mutableStateOf(true) }
+
+    // 거리 및 칼로리 소모 계산
+    val strideLength = 0.415 * height // 보폭 계산 (cm)
+    val distanceInMeters = stepCount * strideLength / 100 // 걸은 거리 (m)
+    val caloriesBurned = (distanceInMeters / 1000) * weight // 칼로리 계산
 
     // HomeScreen이 처음 로드될 때 오늘 걸음 수 불러오기
     LaunchedEffect(Unit) {
         // Firebase 인증 상태가 올바르게 설정된 후 데이터 가져오기
         if (auth.currentUser != null) {
-            userViewModel.getTodaySteps(
-                onSuccess = { steps ->
-                    isLoading.value = false
-                    userViewModel.setStepCount(steps)  },
-                onFailure = { /* 예외 처리 */ }
+            userViewModel.getTodayStepsAndUserData(
+                onSuccess = { steps, userHeight, userWeight ->
+                    userViewModel.setStepCount(steps)
+                    userViewModel.setHeightAndWeight(userHeight, userWeight)
+                },
+                onFailure = { e -> e.printStackTrace() }
             )
         } else {
             // 인증되지 않은 경우 로그인 화면으로 리다이렉트
@@ -105,6 +113,15 @@ Scaffold(
                 style = MaterialTheme.typography.displayLarge,
                 color = Color.Black
             )
+            Text(text = "Height: $height cm")
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(text = "Weight: $weight kg")
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text("Distance Walked: %.2f m".format(distanceInMeters))
+            Text("Calories Burned: %.2f kcal".format(caloriesBurned))
+            Spacer(modifier = Modifier.height(16.dp))
         }
 
 
