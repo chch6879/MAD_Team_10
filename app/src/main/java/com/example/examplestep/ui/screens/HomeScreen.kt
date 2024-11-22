@@ -1,6 +1,11 @@
 package com.example.examplestep.ui.screens
 
 
+import android.app.Activity
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -54,6 +60,10 @@ fun HomeScreen(
     val context = LocalContext.current
     val isLoading = remember { mutableStateOf(true) }
 
+    // SensorManager and StepDetector setup
+//    val sensorManager = context.getSystemService(SensorManager::class.java)
+//    val stepDetectorSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR)
+
     // 거리 및 칼로리 소모 계산
     val strideLength = 0.415 * height // 보폭 계산 (cm)
     val distanceInMeters = stepCount * strideLength / 100 // 걸은 거리 (m)
@@ -67,6 +77,15 @@ fun HomeScreen(
                 onSuccess = { steps, userHeight, userWeight ->
                     userViewModel.setStepCount(steps)
                     userViewModel.setHeightAndWeight(userHeight, userWeight)
+
+                    // LocalContext에서 Activity 가져오기
+                    val activity = context as? Activity
+                    if (activity != null) {
+                        userViewModel.setupSensor(context, activity) // Activity를 전달
+                    } else {
+                        // Activity가 null인 경우 적절한 처리
+                        println("Activity is null")
+                    }
                 },
                 onFailure = { e -> e.printStackTrace() }
             )
@@ -83,6 +102,35 @@ fun HomeScreen(
         // 데이터가 로드되었을 때 표시
         Text("Today's Step Count: $stepCount")
     }
+
+    // Step detector event listener
+//    DisposableEffect(sensorManager) {
+//        val sensorEventListener = object : SensorEventListener {
+//            override fun onSensorChanged(event: SensorEvent?) {
+//                if (event?.sensor?.type == Sensor.TYPE_STEP_DETECTOR) {
+//                    val newStepCount = stepCount + event.values[0].toInt()
+//                    userViewModel.setStepCount(newStepCount)
+//                    userViewModel.updateDailySteps(
+//                        newStepCount,
+//                        onSuccess = {},
+//                        onFailure = { it.printStackTrace() }
+//                    )
+//                }
+//            }
+//
+//            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+//        }
+//
+//        sensorManager?.registerListener(
+//            sensorEventListener,
+//            stepDetectorSensor,
+//            SensorManager.SENSOR_DELAY_NORMAL
+//        )
+//
+//        onDispose {
+//            sensorManager?.unregisterListener(sensorEventListener)
+//        }
+//    }
 
 
 Scaffold(
