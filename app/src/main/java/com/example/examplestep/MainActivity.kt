@@ -62,7 +62,7 @@ class MainActivity : ComponentActivity() {
                     }
                 }
                 composable("status") {
-                    StatusScreen(navController, userViewModel = userViewModel)
+                    StatusScreen(navController, userViewModel = userViewModel,context = this@MainActivity)
                 }
                 composable("home") {
                     HomeScreen(navController,userViewModel=userViewModel)

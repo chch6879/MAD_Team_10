@@ -9,6 +9,8 @@
     import android.hardware.SensorManager
     import android.os.Build
     import android.util.Log
+    import androidx.compose.runtime.State
+    import androidx.compose.runtime.mutableStateOf
     import androidx.core.app.ActivityCompat
     import androidx.core.content.ContextCompat
     import androidx.lifecycle.ViewModel
@@ -38,10 +40,7 @@
         private val _weight = MutableStateFlow(0)
         val weight: StateFlow<Int> get() = _weight
 
-        fun setHeightAndWeight(height: Int, weight: Int) {
-            _height.value = height
-            _weight.value = weight
-        }
+
 
         private val today: String
             get() = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
@@ -53,6 +52,9 @@
 
         private var previousStepCount: Int = 0 // 이전 걸음 수 저장 변수
 
+
+        private val _loading = mutableStateOf(true)
+        val loading: State<Boolean> get() = _loading
 
         // 날짜 변경을 확인하고, 필요 시 초기화하는 함수
         private fun checkDateChange() {
@@ -73,6 +75,7 @@
                     _weight.value = weight
                     _stepCount.value = stepCount // 초기 걸음수 설정
                     lastUpdateDate = today // 초기화 시점에서 날짜 저장
+                    _loading.value = false // 데이터 로딩 완료
                 },
                 onFailure = { e ->
                     e.printStackTrace()
@@ -112,6 +115,9 @@
             val universityName = universityName ?: return // 대학명을 로드한 후 사용
             val dailyStepsData = hashMapOf("stepCount" to stepCount)
 
+            Log.d("UpdateDailySteps", "Starting updateDailySteps with stepCount: $stepCount")
+            Log.d("UpdateDailySteps", "UserId: $userId, UniversityName: $universityName")
+
             // 날짜가 바뀌면 파이버베이스 users컬렉션의 previousStep을 초기화 해야됨
             checkDateChange() // 매번 호출 시 날짜 확인
 
@@ -120,6 +126,8 @@
                 onSuccess = { previousStepCount ->
                     val stepDifference = stepCount - previousStepCount
                     if (stepDifference <= 0) return@getPreviousStepCount // 증가하지 않은 경우 업데이트 생략
+
+                    Log.d("UpdateDailySteps InININ", "PreviousStepCount: $previousStepCount")
 
                     // 대학 및 사용자 문서에 대해 업데이트
                     val dailyStepsRefUniversityCollection = db.collection("universities")
@@ -134,6 +142,9 @@
                         .collection("dailySteps")
                         .document(today)
 
+
+                    Log.d("dailyStepsRefUniversityCollection", "dailyStepsRefUniversityCollection: $dailyStepsRefUniversityCollection")
+                    Log.d("dailyStepsRefUserCollection InININ", "dailyStepsRefUserCollection: $dailyStepsRefUserCollection")
                     // 공통 함수로 중복 제거: Firestore에 데이터 업데이트 또는 설정
                     fun updateFirestoreDocument(docRef: DocumentReference) {
                         docRef.get()
@@ -198,6 +209,11 @@
         private fun registerStepSensor(context: Context) {
             val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
             val stepDetectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR)
+
+            if (stepDetectorSensor == null) {
+                Log.e("StepSensor", "Step detector sensor is not available on this device")
+                return
+            }
             val sensorEventListener = object : SensorEventListener {
                 override fun onSensorChanged(event: SensorEvent?) {
                     if (event?.sensor?.type == Sensor.TYPE_STEP_DETECTOR) {
@@ -206,8 +222,8 @@
                         setStepCount(newStepCount)
                         updateDailySteps(
                             newStepCount,
-                            onSuccess = {},
-                            onFailure = { it.printStackTrace() }
+                            onSuccess = {Log.d("StepSensor", "Steps successfully updated to Firestore")},
+                            onFailure = { e -> Log.e("StepSensor", "Failed to update steps", e) }
                         )
                     }
                 }
@@ -233,16 +249,37 @@
                 .addOnFailureListener { e -> onFailure(e) }
         }
 
-        private fun getPreviousStepCount(onSuccess: (Int) -> Unit, onFailure: (Exception) -> Unit) {
+//        private fun getPreviousStepCount(onSuccess: (Int) -> Unit, onFailure: (Exception) -> Unit) {
+//            val userId = auth.currentUser?.uid ?: return
+//            db.collection("users")
+//                .document(userId)
+//                .get()
+//                .addOnSuccessListener { document ->
+//                    val stepCount = document.getLong("previousStepCount")?.toInt() ?: 0
+//                    onSuccess(stepCount)
+//                }
+//                .addOnFailureListener(onFailure)
+//        }
+
+        fun getPreviousStepCount(onSuccess: (Int) -> Unit, onFailure: (Exception) -> Unit) {
             val userId = auth.currentUser?.uid ?: return
-            db.collection("users")
-                .document(userId)
-                .get()
-                .addOnSuccessListener { document ->
-                    val stepCount = document.getLong("previousStepCount")?.toInt() ?: 0
-                    onSuccess(stepCount)
+            val dailyStepsRef = db.collection("users").document(userId).collection("dailySteps").document(today)
+
+            dailyStepsRef.get()
+                .addOnSuccessListener { documentSnapshot ->
+                    if (documentSnapshot.exists()) {
+                        val previousStepCount = documentSnapshot.getLong("stepCount")?.toInt() ?: 0
+                        Log.d("GetPreviousStepCount", "Previous step count: $previousStepCount")
+                        onSuccess(previousStepCount)
+                    } else {
+                        Log.d("GetPreviousStepCount", "No document found, returning 0")
+                        onSuccess(0) // 문서가 없을 경우 0으로 처리
+                    }
                 }
-                .addOnFailureListener(onFailure)
+                .addOnFailureListener { e ->
+                    Log.e("GetPreviousStepCount", "Failed to get previous step count", e)
+                    onFailure(e)
+                }
         }
 
         // 월별 누적 걸음 수를 Firestore에 업데이트하는 함수
@@ -286,6 +323,7 @@
             val userId = auth.currentUser?.uid ?: return
             val universityName = universityName ?: return // 대학명 확인
 
+            // 사용자 문서에서 키와 몸무게 가져오기
             db.collection("users").document(userId)
                 .get()
                 .addOnSuccessListener { userDocument ->
@@ -303,16 +341,26 @@
                                     val stepCount = stepDocument.getLong("stepCount")?.toInt() ?: 0
                                     onSuccess(stepCount, height, weight)
                                 } else {
-                                    // 걸음 수 초기화 후 반환
+                                    // 걸음 수가 없으면 초기화 후 반환
                                     val initialStepCount = 0
                                     val dailyStepsData = hashMapOf("stepCount" to initialStepCount)
 
+                                    // 사용자 문서에 걸음 수 초기화
                                     db.collection("users").document(userId)
                                         .collection("dailySteps").document(today)
                                         .set(dailyStepsData)
                                         .addOnSuccessListener {
                                             onSuccess(initialStepCount, height, weight)
                                         }
+                                        .addOnFailureListener { e ->
+                                            onFailure(e)
+                                        }
+
+                                    // 대학 문서에 걸음 수 초기화
+                                    db.collection("universities").document(universityName)
+                                        .collection("users").document(userId)
+                                        .collection("dailySteps").document(today)
+                                        .set(dailyStepsData)
                                         .addOnFailureListener { e ->
                                             onFailure(e)
                                         }
@@ -336,6 +384,11 @@
             _stepCount.value = count
         }
 
+        fun setHeightAndWeight(height: Int, weight: Int) {
+            _height.value = height
+            _weight.value = weight
+        }
+
         // 사용자의 키와 몸무게 입력
         fun saveUserHeightAndWeight(
             height: Int,
@@ -354,5 +407,9 @@
             userRef.update(data)
                 .addOnSuccessListener { onSuccess() }
                 .addOnFailureListener { e -> onFailure(e) }
+
+            setHeightAndWeight(height,weight)
         }
+
+
     }
