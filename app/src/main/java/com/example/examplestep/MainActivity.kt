@@ -28,6 +28,7 @@ import com.example.examplestep.ui.screens.LoginScreen
 import com.example.examplestep.ui.screens.HomeScreen
 import com.example.examplestep.ui.screens.LeaderboardScreen
 import com.example.examplestep.ui.screens.RankingScreen
+import com.example.examplestep.ui.screens.SettingScreen
 import com.example.examplestep.ui.screens.SplashScreen
 import com.example.examplestep.ui.screens.StatusScreen
 import com.example.examplestep.ui.screens.UniversitySelectionScreen
@@ -69,6 +70,9 @@ class MainActivity : ComponentActivity() {
                 }
                 composable("ranking") {
                     LeaderboardScreen(navController, leaderboardViewModel=leaderboardViewModel)
+                }
+                composable("setting") {
+                    SettingScreen(navController) // Setting 화면 추가
                 }
             }
 
