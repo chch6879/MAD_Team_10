@@ -33,8 +33,8 @@
         userViewModel: UserViewModel,
         context: Context // Context를 받아오기
     ){
-        var height by remember { mutableStateOf(TextFieldValue("")) }
-        var weight by remember { mutableStateOf(TextFieldValue("")) }
+        var height by remember { mutableStateOf("") }
+        var weight by remember { mutableStateOf("") }
         var isLoading by remember { mutableStateOf(false) }
         var successMessage by remember { mutableStateOf("") }
         var errorMessage by remember { mutableStateOf("") }
@@ -61,8 +61,8 @@
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = {
-                    val heightValue = height.text.toIntOrNull()
-                    val weightValue = weight.text.toIntOrNull()
+                    val heightValue = height.toIntOrNull()
+                    val weightValue = weight.toIntOrNull()
 
                     if (heightValue != null && weightValue != null) {
                         isLoading = true
@@ -74,7 +74,9 @@
                                 successMessage = "Data saved successfully!"
                                 errorMessage = ""
                                 restartApp(context)  // 성공 시 앱 재시작
-                                navController.navigate("home")
+                                navController.navigate("home"){
+                                    popUpTo("status"){ inclusive= true }
+                                }
                             },
                             onFailure = { e ->
                                 isLoading = false
@@ -86,7 +88,8 @@
                         errorMessage = "Please enter valid numeric values for height and weight."
                     }
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                enabled = height.isNotEmpty() && height.isNotEmpty()
             ) {
                 if (isLoading) {
                     CircularProgressIndicator()

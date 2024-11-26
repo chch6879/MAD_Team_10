@@ -29,7 +29,7 @@ fun UniversitySelectionScreen(
     onUniversitySelected: (String) -> Unit
 ) {
     val context = LocalContext.current
-    val universityName = remember { mutableStateOf("") }
+    var universityName by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     Column (
@@ -43,8 +43,8 @@ fun UniversitySelectionScreen(
 
         // 대학 소속 입력 필드
         TextField(
-            value = universityName.value,
-            onValueChange = { universityName.value = it },
+            value = universityName,
+            onValueChange = { universityName = it },
             label = { Text("대학 이름(ex. OO대학교 정자로 기입해주세요 ") },
             modifier = Modifier.fillMaxWidth()
         )
@@ -54,7 +54,7 @@ fun UniversitySelectionScreen(
         Button(
             onClick = {
                 // 선택한 대학 이름을 Firebase에 저장
-                universityViewModel.saveUniversityNameToFirebase(universityName.value,
+                universityViewModel.saveUniversityNameToFirebase(universityName,
                     onSuccess = {
                         // 대학 선택 후 홈 화면으로 이동
                         navController.navigate("status")
@@ -63,7 +63,8 @@ fun UniversitySelectionScreen(
                         errorMessage = "대학 이름 저장 실패: ${exception.message}"
                     }
                 )
-            }
+            },
+            enabled = universityName.isNotEmpty()
         ) {
             Text("확인")
         }
