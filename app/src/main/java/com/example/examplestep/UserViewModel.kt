@@ -1,3 +1,4 @@
+
     package com.example.examplestep
 
     import android.app.Activity
@@ -64,6 +65,7 @@
                 lastUpdateDate = today
             }
         }
+
 
         init {
             loadUserUniversity()

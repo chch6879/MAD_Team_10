@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.ExampleStep" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.ExampleStep" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- 전체 폰트를 정의 -->
+        <item name="android:fontFamily">@font/nanum_barun_gothic</item>
+        <item name="fontFamily">@font/nanum_barun_gothic</item>
+    </style>
 </resources>
