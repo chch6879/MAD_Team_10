@@ -72,6 +72,13 @@ fun BottomAppBar(navController: NavController) {
 
             CustomIconButton(
                 isSelected = selectedButton == "ranking",
+                onClick = { navController.navigate("mydata") },
+                icon = { Icon(imageVector = Icons.Filled.Star, contentDescription = "Ranking") },
+                text = "내 데이터"
+            )
+
+            CustomIconButton(
+                isSelected = selectedButton == "ranking",
                 onClick = { navController.navigate("ranking") },
                 icon = { Icon(imageVector = Icons.Filled.Star, contentDescription = "Ranking") },
                 text = "랭킹"

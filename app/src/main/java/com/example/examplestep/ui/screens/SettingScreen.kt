@@ -66,6 +66,11 @@ fun SettingScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Button(onClick ={
+                navController.navigate("modify")
+            } ) {
+                Text("정보 수정")
+            }
             // 로그아웃 버튼 추가
             Button(
                 onClick = {

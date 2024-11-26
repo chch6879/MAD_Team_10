@@ -61,6 +61,12 @@
         private val _loading = mutableStateOf(true)
         val loading: State<Boolean> get() = _loading
 
+
+        // 상태 관리: leaderboardState, loadingState, errorState
+        var leaderboardState = mutableStateOf<List<UserStepData>>(emptyList())
+        var loadingState = mutableStateOf(false)
+        var errorState = mutableStateOf<String?>(null)
+
         // 날짜 변경을 확인하고, 필요 시 초기화하는 함수
         private fun checkDateChange() {
             if (lastUpdateDate != today) {
@@ -418,4 +424,37 @@
         }
 
 
+        fun getMonthlyStepsData(
+            selectedMonth: String,
+            onSuccess: (List<UserStepData>) -> Unit,
+            onFailure: (Exception) -> Unit
+        ) {
+            val userId = auth.currentUser?.uid ?: return
+
+            db.collection("users")
+                .document(userId)
+                .collection("dailySteps")
+                .whereGreaterThanOrEqualTo("date", "$selectedMonth-01") // 해당 월의 시작일
+                .whereLessThan("date", "$selectedMonth-32") // 다음 월로 넘어가지 않도록 제한
+                .get()
+                .addOnSuccessListener { querySnapshot ->
+                    val stepsList = querySnapshot.documents.mapNotNull { document ->
+                        val date = document.id // 문서 ID를 날짜로 사용
+                        val stepCount = document.getLong("stepCount")?.toInt() ?: 0
+                        UserStepData(date = date, stepCount = stepCount)
+                    }
+                    onSuccess(stepsList)
+                }
+                .addOnFailureListener { exception ->
+                    onFailure(exception)
+                }
+        }
+
+
+        data class UserStepData(
+            val date: String,   // 날짜 (예: "2024-11-12")
+            val stepCount: Int  // 해당 날짜의 걸음 수
+        )
+
     }
+

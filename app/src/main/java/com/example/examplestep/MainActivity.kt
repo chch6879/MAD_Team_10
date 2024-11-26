@@ -27,6 +27,8 @@ import com.example.examplestep.ui.screens.LoginScreen
 
 import com.example.examplestep.ui.screens.HomeScreen
 import com.example.examplestep.ui.screens.LeaderboardScreen
+import com.example.examplestep.ui.screens.ModifyStatusScreen
+import com.example.examplestep.ui.screens.MyDataScreen
 import com.example.examplestep.ui.screens.RankingScreen
 import com.example.examplestep.ui.screens.SettingScreen
 import com.example.examplestep.ui.screens.SplashScreen
@@ -68,11 +70,17 @@ class MainActivity : ComponentActivity() {
                 composable("home") {
                     HomeScreen(navController,userViewModel=userViewModel)
                 }
+                composable("mydata") {
+                    MyDataScreen(navController,userViewModel=userViewModel)
+                }
                 composable("ranking") {
                     LeaderboardScreen(navController, leaderboardViewModel=leaderboardViewModel)
                 }
                 composable("setting") {
                     SettingScreen(navController) // Setting 화면 추가
+                }
+                composable("modify") {
+                    ModifyStatusScreen(navController,userViewModel = userViewModel)
                 }
             }
 

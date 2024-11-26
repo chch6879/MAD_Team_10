@@ -73,7 +73,7 @@ class LeaderboardViewModel : ViewModel() {
 }
 
 
-    // 월별 누적 걸음 수 데이터를 나타내는 데이터 클래스
+// 월별 누적 걸음 수 데이터를 나타내는 데이터 클래스
 data class StepData(
     val universityName: String,  // 대학 이름
     val totalSteps: Int // 총 걸음 수
