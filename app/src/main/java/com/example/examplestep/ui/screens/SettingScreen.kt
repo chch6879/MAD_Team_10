@@ -54,7 +54,9 @@ fun SettingScreen(
                 }
             )
         },
-        bottomBar = { BottomAppBar(navController) },
+        bottomBar = {
+            BottomAppBar(navController)
+        },
     ) { innerPadding ->
         Column(
             modifier = Modifier

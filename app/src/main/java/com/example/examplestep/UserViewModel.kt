@@ -21,7 +21,7 @@ class UserViewModel : ViewModel() {
     val stepCount: StateFlow<Int> get() = _stepCount
 
     // 목표 걸음 수
-    private val _goalSteps = MutableStateFlow(100)
+    private val _goalSteps = MutableStateFlow(10000)
     val goalSteps: StateFlow<Int> = _goalSteps
 
     // 키와 몸무게를 상태로 관리

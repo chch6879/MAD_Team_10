@@ -125,6 +125,7 @@ Scaffold(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
+                    /*
                     // 이전 날짜 버튼
                     IconButton(onClick = {
                         currentDate = Calendar.getInstance().apply {
@@ -137,13 +138,14 @@ Scaffold(
                             contentDescription = "Precious Day"
                         )
                     }
+                     */
                     // 날짜 표시
                     Text (
                         text = dateText,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.weight(1f)
                     )
-
+                    /*
                     // 날짜 선택 아이콘
                     IconButton(onClick = { showDatePickerDialog = true }) {
                         Icon(
@@ -152,6 +154,7 @@ Scaffold(
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
+                     */
 
                 }
 
