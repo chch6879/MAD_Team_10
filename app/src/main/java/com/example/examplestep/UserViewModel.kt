@@ -34,6 +34,10 @@
         private val _stepCount = MutableStateFlow(0) // 걸음 수를 상태로 관리
         val stepCount: StateFlow<Int> get() = _stepCount
 
+        // 목표 걸음 수 추가 주석
+        private val _goalSteps = MutableStateFlow(10000)
+        val goalSteps: StateFlow<Int> = _goalSteps
+
         // 키와 몸무게를 상태로 관리
         private val _height = MutableStateFlow(0)
         val height: StateFlow<Int> get() = _height
