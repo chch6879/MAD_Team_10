@@ -60,7 +60,6 @@ class UniversityViewModel : ViewModel() {
             }
     }
 
-    // 최초 회원가입을 통해 정보를 입력받으면 각 데이터 table에 자신의 오늘 날짜에 대한 stepCount를 0으로 초기화
     private fun addDailyStepsCollection(userId: String, universityName: String) {
         // Ensure dailySteps collection exists for the user in universities/{universityName}/users/{userId}/
         val dailyStepsData = hashMapOf("stepCount" to 0)
@@ -109,8 +108,6 @@ class UniversityViewModel : ViewModel() {
             }
     }
 
-    
-    // totalStep 컬렉션 생성
     private fun addTotalStepsCollection(universityName: String) {
         // Ensure totalSteps collection exists at the university level
         val totalStepsDocRef = db.collection("universities")
