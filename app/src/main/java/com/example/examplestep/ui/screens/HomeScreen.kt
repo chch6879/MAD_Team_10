@@ -257,6 +257,8 @@ Scaffold(
 
             Text(text = "Weight: $weight kg")
             Spacer(modifier = Modifier.height(16.dp))
+
+
             /*
             // 거리 및 소모 칼로리 표시
             Text("Distance Walked: %.2f m".format(distanceInMeters))

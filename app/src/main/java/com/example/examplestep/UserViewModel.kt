@@ -431,17 +431,42 @@
         ) {
             val userId = auth.currentUser?.uid ?: return
 
+            val stepsList = mutableListOf<UserStepData>()
+
+//            db.collection("users")
+//                .document(userId)
+//                .collection("dailySteps")
+//                .whereGreaterThanOrEqualTo("date", "$selectedMonth-01") // 해당 월의 시작일
+//                .whereLessThan("date", "$selectedMonth-32") // 다음 월로 넘어가지 않도록 제한
+//                .get()
+//                .addOnSuccessListener { querySnapshot ->
+//                    val stepsList = querySnapshot.documents.mapNotNull { document ->
+//                        val date = document.id // 문서 ID를 날짜로 사용
+//                        val stepCount = document.getLong("stepCount")?.toInt() ?: 0
+//                        UserStepData(date = date, stepCount = stepCount)
+//                    }
+//                    onSuccess(stepsList)
+//                }
+//                .addOnFailureListener { exception ->
+//                    onFailure(exception)
+//                }
+
             db.collection("users")
                 .document(userId)
                 .collection("dailySteps")
-                .whereGreaterThanOrEqualTo("date", "$selectedMonth-01") // 해당 월의 시작일
-                .whereLessThan("date", "$selectedMonth-32") // 다음 월로 넘어가지 않도록 제한
                 .get()
                 .addOnSuccessListener { querySnapshot ->
-                    val stepsList = querySnapshot.documents.mapNotNull { document ->
-                        val date = document.id // 문서 ID를 날짜로 사용
-                        val stepCount = document.getLong("stepCount")?.toInt() ?: 0
-                        UserStepData(date = date, stepCount = stepCount)
+                    val snapshot = querySnapshot.documents.mapNotNull { document ->
+                        // 문서 ID가 해당 월로 시작하는지 확인
+                        val date = document.id
+                        if (date.startsWith(selectedMonth)) {
+                            val stepCount = document.getLong("stepCount")?.toInt() ?: 0
+//                            UserStepData(date = date, stepCount = stepCount)
+
+                            stepsList.add(UserStepData(date, stepCount))
+                        } else {
+                            null
+                        }
                     }
                     onSuccess(stepsList)
                 }

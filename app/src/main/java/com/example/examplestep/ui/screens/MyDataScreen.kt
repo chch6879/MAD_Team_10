@@ -36,13 +36,17 @@ fun MyDataScreen(
 
     // 날짜 변경 시 데이터 새로 고침
     LaunchedEffect(selectedMonth) {
-        userViewModel.getMonthlyStepsData(selectedMonth, { steps ->
+        userViewModel.getMonthlyStepsData(
+            selectedMonth,
+            onSuccess = { steps ->
             // 성공적으로 데이터를 가져오면 leaderboardState 업데이트
             userViewModel.leaderboardState.value = steps
-        }, { error ->
+            },
+            onFailure =  { error ->
             // 실패하면 errorState에 에러 메시지가 설정됨
             userViewModel.errorState.value = error.message
-        })
+            }
+        )
     }
 
     Scaffold(
@@ -55,7 +59,7 @@ fun MyDataScreen(
             )
         },
         bottomBar = {
-            // BottomAppBar를 추가할 수 있습니다
+            com.example.examplestep.ui.components.BottomAppBar(navController)
         },
     ) { innerPadding ->
         Column(
@@ -84,13 +88,10 @@ fun MyDataScreen(
                         DatePickerModalInput(
                             onDateSelected = { selectedDate ->
                                 selectedMonth = selectedDate?.let {
-                                    // 밀리초를 기준으로 날짜를 년-월 형식으로 변환
+                                    // 날짜 선택 후, 년-월 형식으로 변환
                                     val calendar = Calendar.getInstance()
                                     calendar.timeInMillis = it
-                                    val year = calendar.get(Calendar.YEAR)
-                                    val month = calendar.get(Calendar.MONTH) + 1 // 0부터 시작하므로 +1 해줘야 함
-                                    // "YYYY-MM" 형식으로 변환
-                                    String.format("%04d-%02d", year, month)
+                                    "${calendar.get(Calendar.YEAR)}-${calendar.get(Calendar.MONTH) + 1}"
                                 } ?: selectedMonth
                                 showDatePickerDialog = false
                             },
