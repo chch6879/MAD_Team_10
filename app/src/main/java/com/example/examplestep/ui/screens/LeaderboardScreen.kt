@@ -37,7 +37,12 @@ fun LeaderboardScreen(
     navController: NavController,
     leaderboardViewModel: LeaderboardViewModel = viewModel()
 ) {
-    var selectedMonth by remember { mutableStateOf("2024-11") }
+    val currentYearMonth = remember {
+        val calendar = Calendar.getInstance()
+        "${calendar.get(Calendar.YEAR)}-${String.format("%02d", calendar.get(Calendar.MONTH) + 1)}"
+    }
+    var selectedMonth by remember { mutableStateOf(currentYearMonth) }
+//    var selectedMonth by remember { mutableStateOf("2024-11") }
     val leaderboardState = remember { mutableStateOf<List<StepData>>(emptyList()) }
     val loadingState = remember { mutableStateOf(true) }
     val errorState = remember { mutableStateOf<String?>(null) }

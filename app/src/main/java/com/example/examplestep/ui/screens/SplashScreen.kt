@@ -87,7 +87,7 @@ fun SplashScreen(navController: NavController) {
             modifier = Modifier.padding(16.dp)
         ) {
                Image(
-                    painter = painterResource(id = R.drawable.stepup), // 로고 이미지 리소스 ID
+                    painter = painterResource(id = R.drawable.stepupnew), // 로고 이미지 리소스 ID
                     contentDescription = "App Logo",
                     modifier = Modifier.size(200.dp)
                 )

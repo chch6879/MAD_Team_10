@@ -98,7 +98,12 @@ fun HomeScreen(
     val dateFormat = SimpleDateFormat("yyyy년 MM월 dd일 (E)")
     val dateText = dateFormat.format(currentDate)
     var showDatePickerDialog by remember { mutableStateOf(false) }
-    var selectedMonth by remember { mutableStateOf("2024-11") }
+    val currentYearMonth = remember {
+        val calendar = Calendar.getInstance()
+        "${calendar.get(Calendar.YEAR)}-${String.format("%02d", calendar.get(Calendar.MONTH) + 1)}"
+    }
+    var selectedMonth by remember { mutableStateOf(currentYearMonth) }
+//    var selectedMonth by remember { mutableStateOf("2024-11") }
 
     // HomeScreen이 처음 로드될 때 오늘 걸음 수 불러오기
     LaunchedEffect(Unit) {

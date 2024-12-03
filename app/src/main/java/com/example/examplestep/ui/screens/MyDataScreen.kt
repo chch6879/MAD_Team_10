@@ -25,7 +25,12 @@ fun MyDataScreen(
     userViewModel: UserViewModel = viewModel()
 ) {
     // 선택된 날짜 변수
-    var selectedMonth by remember { mutableStateOf("2024-11") }
+    val currentYearMonth = remember {
+        val calendar = Calendar.getInstance()
+        "${calendar.get(Calendar.YEAR)}-${String.format("%02d", calendar.get(Calendar.MONTH) + 1)}"
+    }
+    var selectedMonth by remember { mutableStateOf(currentYearMonth) }
+//    var selectedMonth by remember { mutableStateOf("2024-11") }
     val leaderboardState = userViewModel.leaderboardState.value
     val loadingState = userViewModel.loadingState.value
     val errorState = userViewModel.errorState.value
