@@ -47,6 +47,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.examplestep.R
+import com.example.examplestep.ui.theme.Blue
+import com.example.examplestep.ui.theme.LightGray
 
 @SuppressLint("UnrememberedMutableInteractionSource")
 @Composable
@@ -150,12 +152,9 @@ fun BottomAppBar(navController: NavController) {
     BottomAppBar(
         modifier = Modifier
             .fillMaxWidth()
-            .height(120.dp)
-            .background(
-                color = Color.White,
-                shape = RoundedCornerShape(24.dp)
-            ).border(width = 0.5.dp, color = Color.Gray, shape = RoundedCornerShape(24.dp)),
-        containerColor = Color.White,
+            .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp, bottomEnd = 0.dp, bottomStart = 0.dp))
+            .height(120.dp),
+        containerColor = LightGray,
         contentColor = Color.Gray,
     ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -174,9 +173,9 @@ fun BottomAppBar(navController: NavController) {
                 label = { Text(stringResource(id = item.title), fontSize = 15.sp) },
                 selected = currentRoute == item.screenRoute,
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = Color.Black, // 선택된 아이콘 색상
+                    selectedIconColor = Blue, // 선택된 아이콘 색상
                     unselectedIconColor = Color.Gray, // 선택되지 않은 아이콘 색상
-                    selectedTextColor = MaterialTheme.colorScheme.primary, // 선택된 텍스트 색상
+                    selectedTextColor = Blue, // 선택된 텍스트 색상
                     unselectedTextColor = Color.Gray // 선택되지 않은 텍스트 색상
                 ),
                 alwaysShowLabel = false,
@@ -198,6 +197,6 @@ sealed class BottomNavItem(
     val title: Int, val icon: ImageVector, val screenRoute: String
 ) {
     object Home : BottomNavItem(R.string.home, Icons.Filled.Home, "home")
-    object Ranking : BottomNavItem(R.string.Ranking, Icons.Filled.Stars, "ranking")
-    object Setting : BottomNavItem(R.string.Setting, Icons.Filled.Settings, "setting")
+    object Ranking : BottomNavItem(R.string.ranking, Icons.Filled.Stars, "ranking")
+    object Setting : BottomNavItem(R.string.setting, Icons.Filled.Settings, "setting")
 }
