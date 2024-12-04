@@ -3,11 +3,17 @@ package com.example.examplestep.ui.screens
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,7 +23,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -26,6 +34,9 @@ import androidx.navigation.NavController
 import com.example.examplestep.R
 import com.example.examplestep.UserViewModel
 import com.example.examplestep.ui.components.BottomAppBar
+import com.example.examplestep.ui.components.CustomTopAppBar
+import com.example.examplestep.ui.components.boldFontFamily
+import com.example.examplestep.ui.theme.Blue
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
@@ -43,16 +54,7 @@ fun SettingScreen(
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = "Setting Screen",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(top = 24.dp)
-                    )
-                }
-            )
+            CustomTopAppBar("설정")
         },
         bottomBar = {
             BottomAppBar(navController)
@@ -66,11 +68,33 @@ fun SettingScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Button(onClick ={
-                navController.navigate("modify")
-            } ) {
-                Text("정보 수정")
+            Button(
+                onClick ={ navController.navigate("modify") },
+                modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp)
+                        .padding(start = 20.dp, end = 20.dp),
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = 2.dp
+                ),
+                shape = RoundedCornerShape(15.dp),
+                colors = ButtonDefaults.buttonColors(
+                    Color.White
+                )
+            ) {
+                Text(
+                    text = "정보 수정",
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontFamily = boldFontFamily,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        color = Color.Gray
+                    )
+                )
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             // 로그아웃 버튼 추가
             Button(
                 onClick = {
@@ -94,9 +118,27 @@ fun SettingScreen(
                         }
                     }
                 },
-                modifier = Modifier.padding(top = 80.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp)
+                    .padding(start = 20.dp, end = 20.dp),
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = 2.dp
+                ),
+                shape = RoundedCornerShape(15.dp),
+                colors = ButtonDefaults.buttonColors(
+                    Blue
+                )
             ) {
-                Text("로그아웃")
+                Text(
+                    text = "로그아웃",
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontFamily = boldFontFamily,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        color = Color.White
+                    )
+                )
             }
         }
     }

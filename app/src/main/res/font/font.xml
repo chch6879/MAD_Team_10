@@ -4,4 +4,9 @@
         android:font="@font/nanum_barun_gothic"
         android:fontStyle="normal"
         android:fontWeight="400" />
+
+    <font
+        android:font="@font/nanum_barun_gothic_bold"
+        android:fontStyle="normal"
+        android:fontWeight="800" />
 </font-family>

@@ -4,9 +4,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material3.*
@@ -26,6 +28,10 @@ import androidx.navigation.NavController
 import com.example.examplestep.LeaderboardViewModel
 import com.example.examplestep.R
 import com.example.examplestep.StepData
+import com.example.examplestep.ui.components.CustomTopAppBar
+import com.example.examplestep.ui.components.boldFontFamily
+import com.example.examplestep.ui.theme.Blue
+import com.example.examplestep.ui.theme.LightGray
 import com.google.android.material.datepicker.MaterialDatePicker
 import java.text.SimpleDateFormat
 import java.util.*
@@ -66,29 +72,22 @@ fun LeaderboardScreen(
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = "Leaderboard",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(top = 24.dp)
-                    )
-                }
-            )
+            CustomTopAppBar("이달의 순위")
         },
         bottomBar = {
             com.example.examplestep.ui.components.BottomAppBar(navController)
         },
     ) { innerPadding ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(innerPadding),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                    .padding(horizontal = 32.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -96,16 +95,19 @@ fun LeaderboardScreen(
                 Text(
                     text = selectedMonth,
                     style = MaterialTheme.typography.headlineSmall.copy(
-                        fontWeight = FontWeight.Bold // 굵게 설정
+                        fontWeight = FontWeight.Bold, // 굵게 설정
+                        fontFamily = customFontFamily,
+                        fontSize = 25.sp
                     )
                 )
-
                 // 날짜 선택 아이콘
                 IconButton(onClick = { showDatePickerDialog = true }) {
                     Icon(
                         imageVector = Icons.Default.CalendarToday,
                         contentDescription = "Select Month",
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = Color(0xFF3f88e8),
+                        modifier = Modifier
+                            .size(30.dp)
                     )
                 }
             }
@@ -126,13 +128,17 @@ fun LeaderboardScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            //Spacer(modifier = Modifier.height(16.dp))
 
-            Text(text = selectedMonth)
+            //Text(text = selectedMonth)
 
             // 로딩 상태 및 오류 처리
             if (loadingState.value) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally),
+                    color = Blue
+                )
             } else if (errorState.value != null) {
                 Text(
                     text = "Error: ${errorState.value}",
@@ -163,24 +169,39 @@ fun RankingItem(stepData: StepData) {
     // 리더보드 항목 UI 구성
     Row(
         modifier = Modifier
-            .padding(16.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
             .fillMaxWidth()
             .background(
-                Color(0xFFF5F5F5),
+                Color.White,
                 shape = MaterialTheme.shapes.medium
             )
-            .padding(16.dp),
+            .border(
+                width = 1.dp,
+                color = LightGray,
+                shape = RoundedCornerShape(12.dp)
+            )
+            .padding(20.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = stepData.universityName,
             modifier = Modifier.weight(1f),
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodySmall.copy(
+                fontFamily = customFontFamily,
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp,
+            ),
+            color = Color.DarkGray
         )
         Text(
-            text = "${stepData.totalSteps} steps",
-            style = MaterialTheme.typography.bodyLarge
+            text = "${stepData.totalSteps} 걸음",
+            style = MaterialTheme.typography.bodySmall.copy(
+                fontFamily = customFontFamily,
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp,
+            ),
+            color = Color.Gray
         )
     }
 }
@@ -193,23 +214,46 @@ fun DatePickerModalInput(
 ) {
     val datePickerState = rememberDatePickerState(initialDisplayMode = DisplayMode.Input)
 
-    DatePickerDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            TextButton(onClick = {
-                onDateSelected(datePickerState.selectedDateMillis)
-                onDismiss()
-            }) {
-                Text("OK")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
+    MaterialTheme(
+        colorScheme = MaterialTheme.colorScheme.copy(
+            primary = Blue,        // 버튼 색상
+            onPrimary = Color.White,            // 버튼 텍스트 색상
+            surface = LightGray,        // 다이얼로그 배경색
+            onSurface = Blue            // 다이얼로그 텍스트 색상
+        )
     ) {
-        DatePicker(state = datePickerState)
+        DatePickerDialog(
+            onDismissRequest = onDismiss,
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onDateSelected(datePickerState.selectedDateMillis)
+                        onDismiss()
+                    }
+                ) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text("Cancel")
+                }
+            },
+            colors = DatePickerDefaults.colors(
+                containerColor = LightGray,
+                titleContentColor = Blue,
+                headlineContentColor = Color.DarkGray
+            )
+        ) {
+            DatePicker(
+                state = datePickerState,
+                colors = DatePickerDefaults.colors(
+                    containerColor = LightGray,
+                    titleContentColor = Blue,
+                    weekdayContentColor = Blue
+                )
+            )
+        }
     }
 }
 
@@ -237,21 +281,24 @@ fun TopThreeRanking(stepDataList: List<StepData>) {
         RankingMedalItem(
             stepData = second,
             medalIcon = medalIcons.getOrNull(1),
-            description = "Silver Medal"
+            description = "Silver Medal",
+            modifier = Modifier.padding(top = 16.dp)
         )
 
         // 1등 자리
         RankingMedalItem(
             stepData = first,
             medalIcon = medalIcons.getOrNull(0),
-            description = "Gold Medal"
+            description = "Gold Medal",
+            modifier = Modifier.offset(y = (-16).dp)
         )
 
         // 3등 자리
         RankingMedalItem(
             stepData = third,
             medalIcon = medalIcons.getOrNull(2),
-            description = "Bronze Medal"
+            description = "Bronze Medal",
+            modifier = Modifier.padding(top = 16.dp)
         )
     }
 }
@@ -260,11 +307,12 @@ fun TopThreeRanking(stepDataList: List<StepData>) {
 fun RankingMedalItem(
     stepData: StepData?,
     medalIcon: Int?,
-    description: String
+    description: String,
+    modifier: Modifier = Modifier
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.width(100.dp) // 고정된 넓이로 자리 차지
+        modifier = modifier.width(100.dp) // 고정된 넓이로 자리 차지
     ) {
         if (stepData != null && medalIcon != null) {
             // 메달 이미지와 텍스트가 있을 때만 렌더링
@@ -273,8 +321,23 @@ fun RankingMedalItem(
                 contentDescription = description,
                 modifier = Modifier.size(60.dp)
             )
-            Text(text = stepData.universityName, style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold))
-            Text(text = "${stepData.totalSteps} steps", style = MaterialTheme.typography.bodyMedium)
+            Text(
+                text = stepData.universityName,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = boldFontFamily,
+                    fontSize = 20.sp,
+                )
+            )
+            Text(
+                text = "${stepData.totalSteps} 걸음",
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = boldFontFamily,
+                    fontSize = 20.sp,
+                ),
+                color = Color.Gray
+            )
         } else {
             // 데이터가 없으면 빈 상태로 유지
             Spacer(modifier = Modifier.height(60.dp)) // 메달 자리
