@@ -110,7 +110,7 @@ fun MyDataScreen(
                             // 날짜 선택 후, 년-월 형식으로 변환
                             val calendar = Calendar.getInstance()
                             calendar.timeInMillis = it
-                            "${calendar.get(Calendar.YEAR)}년 ${calendar.get(Calendar.MONTH) + 1}월"
+                            "${calendar.get(Calendar.YEAR)}-${calendar.get(Calendar.MONTH) + 1}"
                         } ?: selectedMonth
                         showDatePickerDialog = false
                     },

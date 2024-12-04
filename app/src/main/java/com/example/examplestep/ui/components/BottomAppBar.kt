@@ -68,7 +68,7 @@ fun BottomAppBar(navController: NavController) {
                     topStart = 20.dp, topEnd = 20.dp,
                     bottomEnd = 0.dp, bottomStart = 0.dp)
             )
-            .height(120.dp)
+            .height(130.dp)
             .border(
                 width = 1.dp,
                 color = LightGray,
@@ -89,7 +89,7 @@ fun BottomAppBar(navController: NavController) {
                         imageVector = item.icon,
                         contentDescription = stringResource(id = item.title),
                         modifier = Modifier
-                            .size(40.dp)
+                            .size(35.dp)
                     )
                 },
                 label = { Text(stringResource(id = item.title), fontSize = 15.sp) },
