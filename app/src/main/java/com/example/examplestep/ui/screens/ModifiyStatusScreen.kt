@@ -2,6 +2,7 @@ package com.example.examplestep.ui.screens
 
 import android.content.Context
 import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -41,6 +43,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -68,6 +71,7 @@ fun ModifyStatusScreen(
     var isLoading by remember { mutableStateOf(false) }
     var successMessage by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
+    val context = LocalContext.current
 
     Scaffold(
     topBar = {
@@ -129,7 +133,8 @@ fun ModifyStatusScreen(
                         weightValue,
                         onSuccess = {
                             isLoading = false
-                            successMessage = "\nData saved successfully!"
+                            //successMessage = "\nData saved successfully!"
+                            Toast.makeText(context, "Successfully saved!", Toast.LENGTH_SHORT).show()
                             errorMessage = ""
                             navController.navigate("setting"){
                                 popUpTo("modify"){ inclusive= true }
@@ -138,11 +143,13 @@ fun ModifyStatusScreen(
                         onFailure = { e ->
                             isLoading = false
                             successMessage = ""
-                            errorMessage = "Failed to save data: ${e.message}"
+                            //errorMessage = "Failed to save data: ${e.message}"
+                            Toast.makeText(context, "Failed to save data: ${e.message}", Toast.LENGTH_SHORT).show()
                         }
                     )
                 } else {
-                    errorMessage = "Please enter valid numeric values for height and weight."
+                    Toast.makeText(context, "키와 몸무게를 입력해주세요.", Toast.LENGTH_SHORT).show()
+                    //errorMessage = "Please enter valid numeric values for height and weight."
                 }
             },
             modifier = Modifier
@@ -151,10 +158,13 @@ fun ModifyStatusScreen(
             colors = ButtonDefaults.buttonColors(
                 Blue
             ),
-            enabled = height.isNotEmpty() && height.isNotEmpty()
+            enabled = height.isNotEmpty() && weight.isNotEmpty()
         ) {
             if (isLoading) {
-                CircularProgressIndicator()
+                CircularProgressIndicator(
+                    color = Blue,
+                    modifier = Modifier.size(25.dp)
+                )
             } else {
                 Text(
                     text = "저장",
