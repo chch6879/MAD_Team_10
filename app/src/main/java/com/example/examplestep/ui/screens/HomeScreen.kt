@@ -6,6 +6,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
@@ -52,6 +54,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -64,9 +70,13 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.example.examplestep.ui.components.BottomAppBar
 import com.example.examplestep.ui.components.StepCircleProgress
+import com.example.examplestep.ui.components.boldFontFamily
+import com.example.examplestep.ui.theme.LightGray
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
+
+val customFontFamily = FontFamily(Font(R.font.nanum_barun_gothic))
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -139,36 +149,6 @@ fun HomeScreen(
         Text("Today's Step Count: $stepCount")
     }
 
-    // Step detector event listener
-//    DisposableEffect(sensorManager) {
-//        val sensorEventListener = object : SensorEventListener {
-//            override fun onSensorChanged(event: SensorEvent?) {
-//                if (event?.sensor?.type == Sensor.TYPE_STEP_DETECTOR) {
-//                    val newStepCount = stepCount + event.values[0].toInt()
-//                    userViewModel.setStepCount(newStepCount)
-//                    userViewModel.updateDailySteps(
-//                        newStepCount,
-//                        onSuccess = {},
-//                        onFailure = { it.printStackTrace() }
-//                    )
-//                }
-//            }
-//
-//            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
-//        }
-//
-//        sensorManager?.registerListener(
-//            sensorEventListener,
-//            stepDetectorSensor,
-//            SensorManager.SENSOR_DELAY_NORMAL
-//        )
-//
-//        onDispose {
-//            sensorManager?.unregisterListener(sensorEventListener)
-//        }
-//    }
-
-
 Scaffold(
     modifier = Modifier.fillMaxSize(),
     topBar = {
@@ -176,38 +156,20 @@ Scaffold(
             title = {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.padding(top = 20.dp)
                 ) {
-                    /*
-                    // 이전 날짜 버튼
-                    IconButton(onClick = {
-                        currentDate = Calendar.getInstance().apply {
-                            time = currentDate
-                            add(Calendar.DAY_OF_MONTH, -1)
-                        }.time
-                    }) {
-                        Icon (
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Precious Day"
-                        )
-                    }
-                     */
                     // 날짜 표시
                     Text (
                         text = dateText,
                         textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.displayMedium.copy(
+                            fontFamily = customFontFamily,
+                            fontSize = 20.sp
+                        ),
+                        color = Color.Gray,
                         modifier = Modifier.weight(1f)
                     )
-                    /*
-                    // 날짜 선택 아이콘
-                    IconButton(onClick = { showDatePickerDialog = true }) {
-                        Icon(
-                            imageVector = Icons.Default.CalendarToday,
-                            contentDescription = "Select Month",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                     */
 
                 }
 
@@ -245,44 +207,23 @@ Scaffold(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Today Step",
-                style = MaterialTheme.typography.displayMedium,
+                text = stringResource(R.string.todaystep),
+                style = MaterialTheme.typography.displayMedium.copy(
+                    fontFamily = boldFontFamily,
+                    fontWeight = FontWeight.Bold
+                ),
                 color = Color.Black
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // 목표 수 대비 걸음 수 게이지 표시
             StepCircleProgress(currentSteps = stepCount, goalSteps = goalSteps)
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // 키 몸무게
-            Text(text = "Height: $height cm")
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(text = "Weight: $weight kg")
-            Spacer(modifier = Modifier.height(16.dp))
-
-
-            /*
-            // 거리 및 소모 칼로리 표시
-            Text("Distance Walked: %.2f m".format(distanceInMeters))
-            Text("Calories Burned: %.2f kcal".format(caloriesBurned))
-            Spacer(modifier = Modifier.height(16.dp))
-             */
         }
 
-
-       // Spacer(modifier = Modifier.height(16.dp))
-
+        Spacer(modifier = Modifier.height(32.dp))
+/*
         // 걸음 수 증가 버튼
         Button(onClick = {
-//            stepCount += 1  // 걸음 수 증가
-//            userViewModel.updateDailySteps(
-//                stepCount,
-//                onSuccess = { /* 성공 처리 (필요 시 메시지 표시) */ },
-//                onFailure = { /* 예외 처리 */ }
-//            )
             val updatedStepCount = stepCount + 1  // 걸음 수 증가
             userViewModel.setStepCount(updatedStepCount)
             userViewModel.updateDailySteps(
@@ -293,57 +234,11 @@ Scaffold(
         }) {
             Text("걸음 수 증가")
         }
-
+*/
         //Spacer(modifier = Modifier.height(32.dp))
 
         // 이동 거리 및 소모 칼로리 표시
         StatsSection(distanceKm = distanceInMeters, caloriesBurned = caloriesBurned)
-
-        /*
-        // 로그아웃 버튼 추가
-        Button(
-//            onClick = {
-//                userViewModel.updateDailySteps(
-//                    stepCount,
-//                    onSuccess = {
-//                        auth.signOut() // Firebase에서 로그아웃
-//                        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-//                            .requestIdToken(context.getString(R.string.default_web_client_id))
-//                            .requestEmail()
-//                            .build()
-//                        val googleSignInClient = GoogleSignIn.getClient(context, gso)
-//                        googleSignInClient.signOut() // GoogleSignInClient 초기화
-//                        navController.navigate("login") // 로그인 화면으로 이동
-//                    },
-//                    onFailure = { /* 예외 처리 */ }
-//                )
-//            },
-            onClick = {
-                // Firebase 로그아웃
-                auth.signOut()
-
-                // Google Sign-In 로그아웃
-                val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                    .requestIdToken(context.getString(R.string.default_web_client_id))
-                    .requestEmail()
-                    .build()
-                val googleSignInClient = GoogleSignIn.getClient(context, gso)
-
-                // Google Sign-In 로그아웃
-                googleSignInClient.signOut().addOnCompleteListener {
-                    // 로그아웃 완료 후 로그인 화면으로 이동
-
-                    navController.navigate("login") {
-                        // 기존 스택을 없애고 로그인 화면으로 이동
-                        popUpTo("home") { inclusive = true }
-                    }
-                }
-            },
-            modifier = Modifier.padding(top = 80.dp)
-        ) {
-            Text("로그아웃")
-        }
-         */
     }
   }
 }
@@ -353,8 +248,14 @@ fun InfoCard(icon: @Composable () -> Unit, title: String, value: String) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .height(60.dp),
-        color = Color.White
+            .height(90.dp)
+            .border(
+                width = 1.dp,
+                color = LightGray,
+                shape = RoundedCornerShape(12.dp)
+            ),
+        shape = RoundedCornerShape(12.dp),
+        color = Color.White,
     ) {
         Row(
             modifier = Modifier
@@ -363,21 +264,29 @@ fun InfoCard(icon: @Composable () -> Unit, title: String, value: String) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 icon()
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(20.dp))
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontSize = 20.sp,
-                    color = Color.DarkGray
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontFamily = boldFontFamily,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 25.sp,
+                    ),
+                    color = Color.Gray
                 )
             }
 
             Text(
                 text = value,
-                style = MaterialTheme.typography.bodyLarge,
-                fontSize = 20.sp,
+                style = MaterialTheme.typography.bodySmall.copy(
+                    fontFamily = boldFontFamily,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 25.sp,
+                ),
                 color = Color.Black
             )
         }
@@ -389,7 +298,6 @@ fun StatsSection(distanceKm: Double, caloriesBurned: Double) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 16.dp)
     ) {
         // 이동 거리 표시
         InfoCard(
@@ -397,12 +305,14 @@ fun StatsSection(distanceKm: Double, caloriesBurned: Double) {
                 Icon(
                     imageVector = Icons.Default.LocationOn,
                     contentDescription = "Distance Icon",
-                    tint = Color(0xFFFFA726)
+                    tint = Color(0xFF3f88e8)
                 )
             },
-            title = "이동 거리",
+            title = "이동거리",
             value = "%.2f m".format(distanceKm)
         )
+
+        Spacer(modifier = Modifier.height(8.dp))
 
         // 소모 칼로리 표시
         InfoCard(
@@ -410,10 +320,10 @@ fun StatsSection(distanceKm: Double, caloriesBurned: Double) {
                 Icon(
                     imageVector = Icons.Default.ThumbUp,
                     contentDescription = "Calories Icon",
-                    tint = Color(0xFFF44336)
+                    tint = Color(0xFFe89f3f)
                 )
             },
-            title = "소모 칼로리",
+            title = "칼로리",
             value = "%.2f kcal".format(caloriesBurned)
         )
     }

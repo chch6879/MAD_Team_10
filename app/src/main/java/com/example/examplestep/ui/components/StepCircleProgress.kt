@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -15,6 +16,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.examplestep.ui.theme.Blue
 
 @Composable
 fun StepCircleProgress(currentSteps: Int, goalSteps: Int) {
@@ -34,24 +36,27 @@ fun StepCircleProgress(currentSteps: Int, goalSteps: Int) {
                 startAngle = -90f,
                 sweepAngle = 360f,
                 useCenter = false,
-                style = Stroke(width = 16.dp.toPx())
+                style = Stroke(width = 30.dp.toPx())
             )
         }
 
         // 원형 진행 게이지
         Canvas(modifier = Modifier.size(300.dp)) {
             drawArc(
-                color = Color(0xFFFFA500),
+                color = Blue,
                 startAngle = -90f,
                 sweepAngle = 360f * progress,
                 useCenter = false,
-                style = Stroke(width = 16.dp.toPx())
+                style = Stroke(width = 30.dp.toPx())
             )
         }
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // 백분율 계산
+            val progressPercentage = (currentSteps.toFloat() / goalSteps.toFloat()) * 100
+
             Text(
                 text = "${currentSteps}걸음",
                 fontSize = 50.sp,
@@ -59,8 +64,12 @@ fun StepCircleProgress(currentSteps: Int, goalSteps: Int) {
                 color = Color.Black
             )
             Text(
-                text = "Goal: $goalSteps",
-                fontSize = 25.sp,
+                text = "${progressPercentage.toInt()} %",
+                style = MaterialTheme.typography.bodySmall.copy(
+                    fontFamily = boldFontFamily,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 30.sp,
+                ),
                 color = Color.Gray
             )
         }

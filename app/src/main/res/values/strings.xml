@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">ExampleStep</string>
     <string name="default_web_client_id">276613624191-eskfch7em6cevbvos4djbipqo14i2nj0.apps.googleusercontent.com</string>
+    <string name="stepup">step up</string>
+    <string name="home">홈</string>
+    <string name="mydata">내 데이터</string>
+    <string name="ranking">랭킹</string>
+    <string name="setting">설정</string>
+    <string name="todaystep">Today Step</string>
+    <string name="mymonthlydata">나의 월별 데이터</string>
 </resources>

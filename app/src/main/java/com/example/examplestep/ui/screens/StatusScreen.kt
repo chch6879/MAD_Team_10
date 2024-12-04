@@ -55,9 +55,9 @@
                 CenterAlignedTopAppBar(
                     modifier = Modifier.padding(vertical = 16.dp), // 원하는 패딩 추가
                     navigationIcon = {
-                        IconButton(onClick = {  navController.navigate("setting"){
-                            popUpTo("modify"){ inclusive= true }
-                        } }) {
+                        IconButton(onClick = { navController.navigate("setting" )
+                        { popUpTo("modify"){ inclusive= true } } })
+                        {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Localized description"
@@ -85,14 +85,14 @@
                 TextField(
                     value = height,
                     onValueChange = { height = it },
-                    label = { Text("Enter Height (cm)") },
+                    label = { Text("키 (cm)") },
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 TextField(
                     value = weight,
                     onValueChange = { weight = it },
-                    label = { Text("Enter Weight (kg)") },
+                    label = { Text("몸무게 (kg)") },
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(16.dp))

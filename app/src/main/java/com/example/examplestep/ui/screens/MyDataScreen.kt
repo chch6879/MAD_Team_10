@@ -10,11 +10,17 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.examplestep.R
 import com.example.examplestep.UserViewModel
+import com.example.examplestep.ui.components.CustomTopAppBar
+import com.example.examplestep.ui.components.boldFontFamily
 import com.google.firebase.auth.FirebaseAuth
 import java.util.Calendar
 
@@ -55,13 +61,10 @@ fun MyDataScreen(
     }
 
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize(),
         topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(text = "나의 월별 데이터", fontSize = 24.sp)
-                }
-            )
+            CustomTopAppBar("나의 월별 데이터")
         },
         bottomBar = {
             com.example.examplestep.ui.components.BottomAppBar(navController)
@@ -76,33 +79,44 @@ fun MyDataScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
+                    .padding(horizontal = 32.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = selectedMonth, style = MaterialTheme.typography.headlineSmall)
-
+                Text(
+                    text = selectedMonth,
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        fontFamily = customFontFamily,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 25.sp
+                    )
+                )
                 IconButton(onClick = { showDatePickerDialog = true }) {
-                    Icon(imageVector = Icons.Default.CalendarToday, contentDescription = "Select Month")
+                    Icon(
+                        imageVector = Icons.Filled.CalendarToday,
+                        contentDescription = "Select Month",
+                        tint = Color(0xFF3f88e8),
+                        modifier = Modifier
+                            .size(30.dp)
+                    )
                 }
             }
 
-
-
-// DatePickerModalInput Dialog 표시
-                    if (showDatePickerDialog) {
-                        DatePickerModalInput(
-                            onDateSelected = { selectedDate ->
-                                selectedMonth = selectedDate?.let {
-                                    // 날짜 선택 후, 년-월 형식으로 변환
-                                    val calendar = Calendar.getInstance()
-                                    calendar.timeInMillis = it
-                                    "${calendar.get(Calendar.YEAR)}-${calendar.get(Calendar.MONTH) + 1}"
-                                } ?: selectedMonth
-                                showDatePickerDialog = false
-                            },
-                            onDismiss = { showDatePickerDialog = false }
-                        )
-                    }
+            // DatePickerModalInput Dialog 표시
+            if (showDatePickerDialog) {
+                DatePickerModalInput(
+                    onDateSelected = { selectedDate ->
+                        selectedMonth = selectedDate?.let {
+                            // 날짜 선택 후, 년-월 형식으로 변환
+                            val calendar = Calendar.getInstance()
+                            calendar.timeInMillis = it
+                            "${calendar.get(Calendar.YEAR)}년 ${calendar.get(Calendar.MONTH) + 1}월"
+                        } ?: selectedMonth
+                        showDatePickerDialog = false
+                    },
+                    onDismiss = { showDatePickerDialog = false }
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -116,11 +130,27 @@ fun MyDataScreen(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(8.dp),
+                                .padding(16.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text(text = stepData.date)
-                            Text(text = "${stepData.stepCount} 걸음")
+                            Text(
+                                text = stepData.date,
+                                style = MaterialTheme.typography.headlineSmall.copy(
+                                    fontFamily = customFontFamily,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 20.sp
+                                ),
+                                color = Color.DarkGray
+                            )
+                            Text(
+                                text = "${stepData.stepCount} 걸음",
+                                style = MaterialTheme.typography.headlineSmall.copy(
+                                    fontFamily = customFontFamily,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 20.sp
+                                ),
+                                color = Color.DarkGray
+                            )
                         }
                     }
                 }
