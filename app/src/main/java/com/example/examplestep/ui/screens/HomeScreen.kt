@@ -220,7 +220,7 @@ Scaffold(
             StepCircleProgress(currentSteps = stepCount, goalSteps = goalSteps)
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(28.dp))
 /*
         // 걸음 수 증가 버튼
         Button(onClick = {
@@ -235,7 +235,6 @@ Scaffold(
             Text("걸음 수 증가")
         }
 */
-        //Spacer(modifier = Modifier.height(32.dp))
 
         // 이동 거리 및 소모 칼로리 표시
         StatsSection(distanceKm = distanceInMeters, caloriesBurned = caloriesBurned)
@@ -248,7 +247,7 @@ fun InfoCard(icon: @Composable () -> Unit, title: String, value: String) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .height(90.dp)
+            .height(85.dp)
             .border(
                 width = 1.dp,
                 color = LightGray,
@@ -260,7 +259,7 @@ fun InfoCard(icon: @Composable () -> Unit, title: String, value: String) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = 32.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -273,7 +272,6 @@ fun InfoCard(icon: @Composable () -> Unit, title: String, value: String) {
                     text = title,
                     style = MaterialTheme.typography.bodySmall.copy(
                         fontFamily = boldFontFamily,
-                        fontWeight = FontWeight.Bold,
                         fontSize = 25.sp,
                     ),
                     color = Color.Gray
@@ -284,10 +282,9 @@ fun InfoCard(icon: @Composable () -> Unit, title: String, value: String) {
                 text = value,
                 style = MaterialTheme.typography.bodySmall.copy(
                     fontFamily = boldFontFamily,
-                    fontWeight = FontWeight.Bold,
                     fontSize = 25.sp,
                 ),
-                color = Color.Black
+                color = Color.DarkGray
             )
         }
     }
@@ -305,14 +302,14 @@ fun StatsSection(distanceKm: Double, caloriesBurned: Double) {
                 Icon(
                     imageVector = Icons.Default.LocationOn,
                     contentDescription = "Distance Icon",
-                    tint = Color(0xFF3f88e8)
+                    tint = Color(0xFF3f88e8),
                 )
             },
             title = "이동거리",
             value = "%.2f m".format(distanceKm)
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         // 소모 칼로리 표시
         InfoCard(

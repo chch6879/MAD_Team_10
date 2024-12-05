@@ -1,6 +1,7 @@
 package com.example.examplestep.ui.screens
 
 import android.widget.Toast
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -21,6 +23,8 @@ import com.example.examplestep.R
 import com.example.examplestep.UserViewModel
 import com.example.examplestep.ui.components.CustomTopAppBar
 import com.example.examplestep.ui.components.boldFontFamily
+import com.example.examplestep.ui.theme.Blue
+import com.example.examplestep.ui.theme.LightGray
 import com.google.firebase.auth.FirebaseAuth
 import java.util.Calendar
 
@@ -41,6 +45,8 @@ fun MyDataScreen(
     val loadingState = userViewModel.loadingState.value
     val errorState = userViewModel.errorState.value
     var showDatePickerDialog by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
 
     // Firebase UserId
     val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
@@ -118,35 +124,46 @@ fun MyDataScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            // 구분선
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                thickness = 1.dp,
+                color = LightGray
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
 
             if (loadingState) {
-                CircularProgressIndicator()
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    CircularProgressIndicator( color = Blue )
+                }
             } else if (errorState != null) {
-                Text("Error: $errorState")
+                Toast.makeText(context, "Error: $errorState", Toast.LENGTH_SHORT).show()
             } else {
                 LazyColumn {
                     items(leaderboardState) { stepData ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp),
+                                .padding(horizontal = 20.dp, vertical = 16.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
                                 text = stepData.date,
-                                style = MaterialTheme.typography.headlineSmall.copy(
+                                style = MaterialTheme.typography.bodySmall.copy(
                                     fontFamily = customFontFamily,
-                                    fontWeight = FontWeight.SemiBold,
                                     fontSize = 20.sp
                                 ),
                                 color = Color.DarkGray
                             )
                             Text(
                                 text = "${stepData.stepCount} 걸음",
-                                style = MaterialTheme.typography.headlineSmall.copy(
+                                style = MaterialTheme.typography.bodySmall.copy(
                                     fontFamily = customFontFamily,
-                                    fontWeight = FontWeight.SemiBold,
                                     fontSize = 20.sp
                                 ),
                                 color = Color.DarkGray
