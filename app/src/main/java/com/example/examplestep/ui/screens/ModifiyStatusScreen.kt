@@ -76,7 +76,11 @@ fun ModifyStatusScreen(
     Scaffold(
     topBar = {
         CenterAlignedTopAppBar(
-            modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 0.dp),
+            modifier = Modifier
+                .padding(
+                    start = 16.dp, end = 16.dp,
+                    top = 20.dp, bottom = 0.dp
+                ),
             navigationIcon = {
                 IconButton(onClick = {  navController.navigate("setting"){
                     popUpTo("modify"){ inclusive= true }
@@ -212,7 +216,6 @@ fun CustomNumberInputField(
                 color = Color.DarkGray,
                 fontSize = 50.sp,
                 fontFamily = boldFontFamily,
-                fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             ),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -230,7 +233,6 @@ fun CustomNumberInputField(
                             color = Color.Gray,
                             fontSize = 30.sp,
                             fontFamily = boldFontFamily,
-                            fontWeight = FontWeight.Normal,
                             textAlign = TextAlign.Center,
                         )
                     }

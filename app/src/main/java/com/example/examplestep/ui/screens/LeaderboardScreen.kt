@@ -1,5 +1,6 @@
 package com.example.examplestep.ui.screens
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -8,6 +9,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
@@ -53,6 +55,8 @@ fun LeaderboardScreen(
     val loadingState = remember { mutableStateOf(true) }
     val errorState = remember { mutableStateOf<String?>(null) }
     var showDatePickerDialog by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
 
     // 데이터 가져오기 작업
     LaunchedEffect(selectedMonth) {
@@ -128,23 +132,34 @@ fun LeaderboardScreen(
                 )
             }
 
-            //Spacer(modifier = Modifier.height(16.dp))
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                thickness = 1.dp,
+                color = LightGray
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             //Text(text = selectedMonth)
 
             // 로딩 상태 및 오류 처리
             if (loadingState.value) {
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .align(Alignment.CenterHorizontally),
-                    color = Blue
-                )
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    CircularProgressIndicator( color = Blue )
+                }
             } else if (errorState.value != null) {
+                /*
                 Text(
                     text = "Error: ${errorState.value}",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.error
                 )
+                 */
+                Toast.makeText(context, "Error: ${errorState.value}", Toast.LENGTH_SHORT).show()
             } else {
                 // 1~3등 상단 표시
                 TopThreeRanking(
@@ -155,8 +170,8 @@ fun LeaderboardScreen(
 
                 // 4등 이후 LazyColumn으로 나열
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(leaderboardState.value.drop(3)) { stepData ->
-                        RankingItem(stepData)
+                    itemsIndexed(leaderboardState.value.drop(3)) { index, stepData ->
+                        RankingItem(stepData = stepData, rank = index + 4)
                     }
                 }
             }
@@ -165,7 +180,7 @@ fun LeaderboardScreen(
 }
 
 @Composable
-fun RankingItem(stepData: StepData) {
+fun RankingItem(stepData: StepData, rank: Int) {
     // 리더보드 항목 UI 구성
     Row(
         modifier = Modifier
@@ -184,22 +199,33 @@ fun RankingItem(stepData: StepData) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = stepData.universityName,
-            modifier = Modifier.weight(1f),
-            style = MaterialTheme.typography.bodySmall.copy(
-                fontFamily = customFontFamily,
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp,
-            ),
-            color = Color.DarkGray
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(
+                text = "${rank}위", // 순위 숫자와 점을 표시
+                style = MaterialTheme.typography.bodySmall.copy(
+                    fontFamily = customFontFamily,
+                    fontSize = 16.sp,
+                ),
+                color = Color.Gray, // 순위 텍스트 색상
+                modifier = Modifier.padding(end = 8.dp) // 순위와 대학명 간 간격
+            )
+            Text(
+                text = stepData.universityName,
+                style = MaterialTheme.typography.bodySmall.copy(
+                    fontFamily = customFontFamily,
+                    fontSize = 20.sp,
+                ),
+                color = Color.DarkGray,
+            )
+        }
         Text(
             text = "${stepData.totalSteps} 걸음",
             style = MaterialTheme.typography.bodySmall.copy(
                 fontFamily = customFontFamily,
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp,
+                fontSize = 16.sp,
             ),
             color = Color.Gray
         )
@@ -218,7 +244,7 @@ fun DatePickerModalInput(
         colorScheme = MaterialTheme.colorScheme.copy(
             primary = Blue,        // 버튼 색상
             onPrimary = Color.White,            // 버튼 텍스트 색상
-            surface = LightGray,        // 다이얼로그 배경색
+            surface = Color.White,        // 다이얼로그 배경색
             onSurface = Blue            // 다이얼로그 텍스트 색상
         )
     ) {
@@ -312,7 +338,8 @@ fun RankingMedalItem(
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.width(100.dp) // 고정된 넓이로 자리 차지
+        modifier = modifier
+            .width(100.dp) // 고정된 넓이로 자리 차지
     ) {
         if (stepData != null && medalIcon != null) {
             // 메달 이미지와 텍스트가 있을 때만 렌더링
@@ -321,20 +348,22 @@ fun RankingMedalItem(
                 contentDescription = description,
                 modifier = Modifier.size(60.dp)
             )
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = stepData.universityName,
-                style = MaterialTheme.typography.bodyLarge.copy(
+                style = MaterialTheme.typography.bodySmall.copy(
                     fontWeight = FontWeight.Bold,
                     fontFamily = boldFontFamily,
                     fontSize = 20.sp,
                 )
             )
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "${stepData.totalSteps} 걸음",
-                style = MaterialTheme.typography.bodyMedium.copy(
+                style = MaterialTheme.typography.bodySmall.copy(
                     fontWeight = FontWeight.Bold,
                     fontFamily = boldFontFamily,
-                    fontSize = 20.sp,
+                    fontSize = 16.sp,
                 ),
                 color = Color.Gray
             )

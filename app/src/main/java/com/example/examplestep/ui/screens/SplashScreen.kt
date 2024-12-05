@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.examplestep.R
+import com.example.examplestep.ui.components.boldFontFamily
 import com.example.examplestep.ui.theme.Blue
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -88,21 +90,22 @@ fun SplashScreen(navController: NavController) {
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.padding(16.dp)
         ) {
-               Image(
-                    painter = painterResource(id = R.drawable.shoelogo), // 로고 이미지 리소스 ID
-                    contentDescription = "App Logo",
-                    modifier = Modifier.size(150.dp)
-               )
+            Image(
+                painter = painterResource(id = R.drawable.shoelogo), // 로고 이미지 리소스 ID
+                contentDescription = "App Logo",
+                modifier = Modifier.size(150.dp)
+            )
 
-               Text(
-                    text = "Let's Step Up!",
-                    style = MaterialTheme.typography.displayMedium.copy(
-                        fontFamily = customFontFamily,
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 30.sp,
-                        color = Blue
-                    )
-               )
+            LinearProgressIndicator( color = Blue )
+
+            Text(
+                text = "Let's Step Up!",
+                style = MaterialTheme.typography.displayMedium.copy(
+                    fontFamily = boldFontFamily,
+                    fontSize = 25.sp,
+                    color = Blue
+                )
+            )
         }
     }
 }

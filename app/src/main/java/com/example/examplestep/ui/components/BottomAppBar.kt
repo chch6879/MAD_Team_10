@@ -89,7 +89,7 @@ fun BottomAppBar(navController: NavController) {
                         imageVector = item.icon,
                         contentDescription = stringResource(id = item.title),
                         modifier = Modifier
-                            .size(35.dp)
+                            .size(32.dp)
                     )
                 },
                 label = { Text(stringResource(id = item.title), fontSize = 15.sp) },
