@@ -2,21 +2,32 @@
 
     import android.content.Context
     import android.content.Intent
+    import android.widget.Toast
+    import androidx.compose.foundation.background
     import androidx.compose.foundation.layout.Arrangement
+    import androidx.compose.foundation.layout.Box
     import androidx.compose.foundation.layout.Column
+    import androidx.compose.foundation.layout.Row
     import androidx.compose.foundation.layout.Spacer
     import androidx.compose.foundation.layout.fillMaxSize
     import androidx.compose.foundation.layout.fillMaxWidth
     import androidx.compose.foundation.layout.height
     import androidx.compose.foundation.layout.padding
+    import androidx.compose.foundation.layout.size
+    import androidx.compose.foundation.layout.width
+    import androidx.compose.foundation.shape.RoundedCornerShape
+    import androidx.compose.foundation.text.BasicTextField
+    import androidx.compose.foundation.text.KeyboardOptions
     import androidx.compose.material.icons.Icons
     import androidx.compose.material.icons.automirrored.filled.ArrowBack
     import androidx.compose.material3.Button
+    import androidx.compose.material3.ButtonDefaults
     import androidx.compose.material3.CenterAlignedTopAppBar
     import androidx.compose.material3.CircularProgressIndicator
     import androidx.compose.material3.ExperimentalMaterial3Api
     import androidx.compose.material3.Icon
     import androidx.compose.material3.IconButton
+    import androidx.compose.material3.LocalTextStyle
     import androidx.compose.material3.MaterialTheme
     import androidx.compose.material3.Scaffold
     import androidx.compose.material3.Text
@@ -27,15 +38,22 @@
     import androidx.compose.runtime.mutableStateOf
     import androidx.compose.runtime.remember
     import androidx.compose.runtime.setValue
+    import androidx.compose.ui.Alignment
     import androidx.compose.ui.Modifier
+    import androidx.compose.ui.graphics.Color
     import androidx.compose.ui.text.font.FontWeight
+    import androidx.compose.ui.text.input.KeyboardType
     import androidx.compose.ui.text.input.TextFieldValue
+    import androidx.compose.ui.text.style.TextAlign
     import androidx.compose.ui.unit.dp
     import androidx.compose.ui.unit.sp
     import androidx.lifecycle.viewmodel.compose.viewModel
     import androidx.navigation.NavController
     import com.example.examplestep.MainActivity
     import com.example.examplestep.UserViewModel
+    import com.example.examplestep.ui.components.boldFontFamily
+    import com.example.examplestep.ui.theme.Blue
+    import com.example.examplestep.ui.theme.LightGray
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
@@ -53,11 +71,15 @@
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
-                    modifier = Modifier.padding(vertical = 16.dp), // 원하는 패딩 추가
+                    modifier = Modifier
+                        .padding(
+                            start = 16.dp, end = 16.dp,
+                            top = 20.dp, bottom = 0.dp
+                        ),
                     navigationIcon = {
-                        IconButton(onClick = { navController.navigate("setting" )
-                        { popUpTo("modify"){ inclusive= true } } })
-                        {
+                        IconButton(onClick = {  navController.navigate("university_selection"){
+                            popUpTo("status"){ inclusive= true }
+                        } }) {
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Localized description"
@@ -66,10 +88,12 @@
                     },
                     title = {
                         Text(
-                            text = "Setting Screen",
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(top = 24.dp)
+                            text = "신체 정보 입력",
+                            style = MaterialTheme.typography.displayMedium.copy(
+                                fontFamily = boldFontFamily,
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 25.sp
+                            )
                         )
                     }
                 )
@@ -79,27 +103,28 @@
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.Center
+                    .padding(start = 32.dp, top = 180.dp, end = 32.dp, bottom = 0.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                TextField(
+                CustomNumberInputField2(
                     value = height,
                     onValueChange = { height = it },
-                    label = { Text("키 (cm)") },
-                    modifier = Modifier.fillMaxWidth()
+                    scale = "cm",
+                    placeholder = "height"
                 )
                 Spacer(modifier = Modifier.height(16.dp))
-                TextField(
+                CustomNumberInputField2(
                     value = weight,
                     onValueChange = { weight = it },
-                    label = { Text("몸무게 (kg)") },
-                    modifier = Modifier.fillMaxWidth()
+                    scale = "kg",
+                    placeholder = "weight"
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(32.dp))
                 Button(
                     onClick = {
                         val heightValue = height.toIntOrNull()
                         val weightValue = weight.toIntOrNull()
+
 
                         if (heightValue != null && weightValue != null) {
                             isLoading = true
@@ -108,7 +133,8 @@
                                 weightValue,
                                 onSuccess = {
                                     isLoading = false
-                                    successMessage = "Data saved successfully!"
+                                    //successMessage = "\nData saved successfully!"
+                                    Toast.makeText(context, "Successfully saved!", Toast.LENGTH_SHORT).show()
                                     errorMessage = ""
                                     restartApp(context)  // 성공 시 앱 재시작
                                     navController.navigate("home"){
@@ -118,20 +144,37 @@
                                 onFailure = { e ->
                                     isLoading = false
                                     successMessage = ""
-                                    errorMessage = "Failed to save data: ${e.message}"
+                                    //errorMessage = "Failed to save data: ${e.message}"
+                                    Toast.makeText(context, "Failed to save data: ${e.message}", Toast.LENGTH_SHORT).show()
                                 }
                             )
                         } else {
-                            errorMessage = "Please enter valid numeric values for height and weight."
+                            Toast.makeText(context, "키와 몸무게를 입력해주세요.", Toast.LENGTH_SHORT).show()
+                            //errorMessage = "Please enter valid numeric values for height and weight."
                         }
                     },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = height.isNotEmpty() && height.isNotEmpty()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        Blue
+                    ),
+                    enabled = height.isNotEmpty() && weight.isNotEmpty()
                 ) {
                     if (isLoading) {
-                        CircularProgressIndicator()
+                        CircularProgressIndicator(
+                            color = Blue,
+                            modifier = Modifier.size(25.dp)
+                        )
                     } else {
-                        Text("Save")
+                        Text(
+                            text = "저장",
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                fontFamily = boldFontFamily,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp
+                            )
+                        )
                     }
                 }
                 if (successMessage.isNotEmpty()) {
@@ -153,4 +196,65 @@
         // 앱 종료
         android.os.Process.killProcess(android.os.Process.myPid())
         System.exit(0)
+    }
+
+    @Composable
+    fun CustomNumberInputField2(
+        value: String,
+        onValueChange: (String) -> Unit,
+        scale: String,
+        placeholder: String,
+        modifier: Modifier = Modifier
+    ) {
+        Row (
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            BasicTextField(
+                value = value,
+                onValueChange = onValueChange,
+                modifier = modifier
+                    .width(200.dp)
+                    .height(80.dp)
+                    .background(
+                        color = LightGray,
+                        shape = RoundedCornerShape(size = 12.dp)
+                    )
+                    .padding(start = 32.dp, end = 32.dp),
+                textStyle = LocalTextStyle.current.copy(
+                    color = Color.DarkGray,
+                    fontSize = 50.sp,
+                    fontFamily = boldFontFamily,
+                    textAlign = TextAlign.Center
+                ),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                singleLine = true,
+                decorationBox = { innerTextField ->
+                    Box (
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (value.isEmpty()) {
+                            Text(
+                                text = placeholder,
+                                color = Color.Gray,
+                                fontSize = 30.sp,
+                                fontFamily = boldFontFamily,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                        innerTextField()
+                    }
+                },
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = scale,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+        }
     }

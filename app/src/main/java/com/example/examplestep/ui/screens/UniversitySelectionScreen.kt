@@ -1,5 +1,6 @@
 package com.example.examplestep.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -7,16 +8,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,12 +30,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.examplestep.UniversityViewModel
+import com.example.examplestep.ui.components.boldFontFamily
+import com.example.examplestep.ui.theme.Blue
+import com.example.examplestep.ui.theme.LightGray
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,8 +58,8 @@ fun UniversitySelectionScreen(
                 modifier = Modifier.padding(vertical = 16.dp), // 원하는 패딩 추가
                 navigationIcon = {
                     IconButton(onClick = {
-                        navController.navigate("setting") {
-                            popUpTo("modify") { inclusive = true }
+                        navController.navigate("login") {
+                            popUpTo("university_selection") { inclusive = true }
                         }
                     }) {
                         Icon(
@@ -64,7 +73,6 @@ fun UniversitySelectionScreen(
                         text = "대학 입력",
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(top = 24.dp)
                     )
                 }
             )
@@ -75,17 +83,26 @@ fun UniversitySelectionScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text("대학 소속을 입력하세요")
-
-            Spacer(modifier = Modifier.height(8.dp))
-
             // 대학 소속 입력 필드
             TextField(
                 value = universityName,
                 onValueChange = { universityName = it },
-                label = { Text("대학 이름(ex. OO대학교 정자로 기입해주세요 ") },
-                modifier = Modifier.fillMaxWidth()
+                label = {
+                    Text("대학 이름(ex. OO대학교 정자로 기입해주세요)", color = Color.Black)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        color = LightGray,
+                        shape = RoundedCornerShape(size = 12.dp)
+                    ),
+                colors = TextFieldDefaults.textFieldColors(
+                    containerColor = LightGray, // 배경을 투명하게 설정
+                    focusedIndicatorColor = Color.Transparent, // 포커스 시 밑줄 제거
+                    unfocusedIndicatorColor = Color.Transparent // 비포커스 시 밑줄 제거
+                )
             )
+
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -102,9 +119,22 @@ fun UniversitySelectionScreen(
                         }
                     )
                 },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                colors = ButtonDefaults.buttonColors(
+                    Blue
+                ),
                 enabled = universityName.isNotEmpty()
             ) {
-                Text("확인")
+                Text(
+                    text = "확인",
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontFamily = boldFontFamily,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
+                )
             }
         }
     }
